@@ -1,8 +1,23 @@
+using NUnit.Framework.Constraints;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerManager : MonoBehaviour
 {
+    //　===== 列挙型 =====
+    public enum PlayerState
+    {
+        Idle,
+        Run,
+        Jump,
+        DoubleJump,
+        Fall,
+        WallSlide,
+        Dead
+    }
+
+    PlayerState currentState;
+
     // ===== 変数 =====
 
     [SerializeField] GameManager gameManager;   //　GameManager取得
@@ -66,22 +81,27 @@ public class PlayerManager : MonoBehaviour
 
     private void Start()
     {
-        Appear();   //　Player登場処理
+        DisablePlayerControl();
     }
 
     private void Update()
     {
         if (!canControl) return;
-        
+
         UpdateGroundState();        //　地面判定の更新
         UpdateWallState();          //　壁判定の更新
         UpdateJumpBuffer();         //　ジャンプ入力バッファ更新
 
+        UpdateState();            //　Player状態更新
+        UpdateByState();          //　状態に応じた更新処理
+
+        Debug.Log("State: " + currentState);
         //　見た目・アニメ更新
         UpdateFacingLock();
         UpdateFacing();
         UpdateAnimator();
     }
+
     private void FixedUpdate()
     {
         if (!canControl) return;
@@ -96,7 +116,12 @@ public class PlayerManager : MonoBehaviour
             rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
         }
 
-        ApplyWallSlide();       //　壁張り付き処理
+        //　壁張り付き落下速度制限
+        if (currentState == PlayerState.WallSlide)
+        {
+            ApplyWallSlide();
+        }
+
         TryJump();              //　ジャンプ入力時処理               
     }
 
@@ -105,7 +130,7 @@ public class PlayerManager : MonoBehaviour
         if (collision.CompareTag("Trap"))
         {
             Debug.Log("ゲームオーバー");
-            Death();
+            RequestDeath();
         }
         if (collision.CompareTag("Finish"))
         {
@@ -118,6 +143,8 @@ public class PlayerManager : MonoBehaviour
             collision.gameObject.GetComponent<ItemManager>().GetItem();
         }
     }
+
+    // ===== InputSystemイベント部分 =====
 
     public void OnMove(InputValue value)
     {
@@ -139,39 +166,306 @@ public class PlayerManager : MonoBehaviour
 
     // ===== 自作メソッド部分 =====
 
-    //　Player登場時設定
-    void Appear()
+    //　---状態管理関連メソッド---
+
+    //　Player状態更新
+    void UpdateState()
     {
-        DisablePlayerControl();
-        animator.SetTrigger("appear");
+        if (currentState == PlayerState.Dead)
+        {
+            return;
+        }
+
+        if (isGrounded)
+        {
+            if (Mathf.Abs(move) > 0.01f)
+            {
+                ChangeState(PlayerState.Run);
+            }
+            else
+            {
+                ChangeState(PlayerState.Idle);
+            }
+            return;
+        }
+
+        if (isOnWall && rb.linearVelocity.y <= 0f)
+        {
+            ChangeState(PlayerState.WallSlide);
+            return;
+        }
+
+        if (rb.linearVelocity.y > 0.1f)
+        {
+            if (jumpCount >= maxJumpCount)
+            {
+                ChangeState(PlayerState.DoubleJump);
+            }
+            else
+            {
+                ChangeState(PlayerState.Jump);
+            }
+        }
+        else
+        {
+            ChangeState(PlayerState.Fall);
+        }
     }
 
-    //　Appearアニメイベント(操作可能切り替え)
-    void OnAppearFinished()
+    //　状態変更時処理
+    void ChangeState(PlayerState newState)
     {
-        rb.simulated = true;
-        canControl = true;
+        if (currentState == newState) return;
+
+        PlayerState previousState = currentState;   //　前の状態保存(使用しないが将来の拡張用に)
+        currentState = newState;
+
+        switch (newState)
+        {
+            case PlayerState.WallSlide:
+                jumpCount = 0;  //　壁を地面とみなしてジャンプ回数リセット
+                break;
+        }
     }
 
-    //　プレイヤー機能停止
-    void DisablePlayerControl()
+    //　状態に応じた更新処理(空のメソッド群は将来の拡張用)
+    void UpdateByState()
     {
-        canControl = false;
+        switch (currentState)
+        {
+            case PlayerState.Idle:
+                UpdateIdle();
+                break;
+
+            case PlayerState.Run:
+                UpdateRun();
+                break;
+
+            case PlayerState.Jump:
+            case PlayerState.Fall:
+                UpdateAir();
+                break;
+
+            case PlayerState.WallSlide:
+                UpdateWallSlide();
+                break;
+
+            case PlayerState.Dead:
+
+                break;
+        }
+    }
+
+    //　---状態別更新メソッド群---
+    void UpdateIdle()
+    {
+    }
+    void UpdateRun()
+    {
+    }
+    void UpdateAir()
+    {
+    }
+    void UpdateWallSlide()
+    {
+    }
+
+    //　---動作メソッド群---
+
+    //　ジャンプ試行
+    void TryJump()
+    {
+        if (jumpBufferCounter <= 0) return;
+
+        switch (currentState)
+        {
+            case PlayerState.Idle:
+            case PlayerState.Run:
+                GroundJump();
+                break;
+
+            case PlayerState.Jump:
+            case PlayerState.Fall:
+                AirJump();
+                break;
+
+            case PlayerState.WallSlide:
+                WallJump();
+                break;
+        }
+    }
+
+    void GroundJump()
+    {
+        jumpCount = 1;
+        jumpBufferCounter = 0;
+        Jump();
+    }
+
+    //　2段ジャンプ
+    void AirJump()
+    {
+        if (jumpCount >= maxJumpCount) return;
+
+        jumpCount++;
+        jumpBufferCounter = 0;
+
+        Jump();
+    }
+
+    //　壁ジャンプ
+    void WallJump()
+    {
+        jumpBufferCounter = 0;
+
+        //　壁ジャンプ時向き調整
+        float direction = isOnLeftWall ? 1f : -1f;
+
+        if (direction > 0 && !isFacingRight) Flip();
+        if (direction < 0 && isFacingRight) Flip();
+
+        //　向き固定設定
+        isFacingLocked = true;
+        facingLockTimer = facingLockTime;
+
         rb.linearVelocity = Vector2.zero;
-        rb.simulated = false;
+
+        rb.AddForce(
+            new Vector2(direction * wallJumpHorizontal, wallJumpPower),
+            ForceMode2D.Impulse
+        );
+
+        jumpCount = 1;
+        //Debug.Log("壁ジャンプ");
+
+        wallJumpControlLockTimer = wallJumpControlLockTime; //　操作ロックタイマーセット
     }
+
+    //　ジャンプ処理本体
+    void Jump()
+    {
+        groundIgnoreTimer = groundIgnoreTime;   //　地面判定無視時間セット
+
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+        rb.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
+    }
+
+    //　壁張り付き処理
+    void ApplyWallSlide()
+    {
+        if (!isOnWall) return;
+        if (isGrounded) return;
+
+        if (rb.linearVelocity.y > 0) return;
+
+        //　落下速度制限
+        if (rb.linearVelocity.y < -wallSlideSpeed)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
+        }
+    }
+
+    //　ジャンプ入力バッファ更新
+    void UpdateJumpBuffer()
+    {
+        if (jumpBufferCounter > 0)
+        {
+            jumpBufferCounter -= Time.deltaTime;
+        }
+    }
+
+    //　---判定更新メソッド群---
+
+    //　地面状態更新
+    void UpdateGroundState()
+    {
+        //　ジャンプ直後の地面判定回避のため、groundIgnoreTimer中は強制的にisGrounded = false;
+        if (groundIgnoreTimer > 0)
+        {
+            groundIgnoreTimer -= Time.deltaTime;
+            isGrounded = false;
+        }
+        else
+        {
+            isGrounded = IsGrounded();
+        }
+
+        if (isGrounded && !wasGrounded)
+        {
+            jumpCount = 0;
+        }
+        wasGrounded = isGrounded;
+    }
+
+    //　地面判定
+    bool IsGrounded()
+    {
+
+        Vector3 leftStartPoint = transform.position - Vector3.right * 0.2f;
+        Vector3 rightStartPoint = transform.position + Vector3.right * 0.2f;
+        Vector3 endPoint = transform.position - Vector3.up * 0.1f;
+        Debug.DrawLine(leftStartPoint, endPoint);
+        Debug.DrawLine(rightStartPoint, endPoint);
+
+        return Physics2D.Linecast(leftStartPoint, endPoint, groundLayer)
+            || Physics2D.Linecast(rightStartPoint, endPoint, groundLayer);
+    }
+
+    //　壁状態更新
+    void UpdateWallState()
+    {
+        if (isGrounded)
+        {
+            isOnWall = false;
+            isOnLeftWall = false;
+            isOnRightWall = false;
+            return;
+        }
+
+        isOnLeftWall = CheckLeftWall();
+        isOnRightWall = CheckRightWall();
+
+        isOnWall = isOnLeftWall || isOnRightWall;
+    }
+
+    //　左壁判定
+    bool CheckLeftWall()
+    {
+        Vector3 upper = transform.position + Vector3.up * 0.4f;
+        Vector3 lower = transform.position + Vector3.up * 0.1f;
+
+        Vector3 upperEnd = upper - Vector3.right * 0.4f;
+        Vector3 lowerEnd = lower - Vector3.right * 0.4f;
+
+        Debug.DrawLine(upper, upperEnd, Color.red);
+        Debug.DrawLine(lower, lowerEnd, Color.red);
+
+        return Physics2D.Linecast(upper, upperEnd, wallLayer)
+            || Physics2D.Linecast(lower, lowerEnd, wallLayer);
+    }
+
+    //　右壁判定
+    bool CheckRightWall()
+    {
+        Vector3 upper = transform.position + Vector3.up * 0.4f;
+        Vector3 lower = transform.position + Vector3.up * 0.1f;
+
+        Vector3 upperEnd = upper + Vector3.right * 0.4f;
+        Vector3 lowerEnd = lower + Vector3.right * 0.4f;
+
+        Debug.DrawLine(upper, upperEnd, Color.red);
+        Debug.DrawLine(lower, lowerEnd, Color.red);
+
+        return Physics2D.Linecast(upper, upperEnd, wallLayer)
+            || Physics2D.Linecast(lower, lowerEnd, wallLayer);
+    }
+
+    //　---見た目・アニメ関連メソッド群---
 
     //　アニメーションアップデート
     void UpdateAnimator()
     {
-        animator.SetFloat("speed", Mathf.Abs(move));
-        animator.SetBool("isGrounded", isGrounded);
-        animator.SetFloat("yVelocity", rb.linearVelocity.y);
-        animator.SetInteger("jumpCount", jumpCount);
-
-        bool isWallSliding = isOnWall && !isGrounded && rb.linearVelocity.y <= 0f;
-
-        animator.SetBool("isWallSliding", isWallSliding);
+        animator.SetInteger("State", (int)currentState);
     }
 
     //　moveの入力値に応じてPlayerの向き切り替え
@@ -210,178 +504,38 @@ public class PlayerManager : MonoBehaviour
         transform.localScale = scale;
     }
 
-    //　ジャンプ処理本体
-    void Jump()
-    {
-        groundIgnoreTimer = groundIgnoreTime;   //　地面判定無視時間セット
+    //　---特殊処理メソッド群---
 
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-        rb.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
+    //　死亡状態リクエスト
+    void RequestDeath()
+    {
+        if (currentState == PlayerState.Dead) return;
+
+        ChangeState(PlayerState.Dead);
     }
 
-    //　ジャンプ入力バッファ更新
-    void UpdateJumpBuffer()
-    {
-        if (jumpBufferCounter > 0)
-        {
-            jumpBufferCounter -= Time.deltaTime;
-        }
-    }
-
-    //　ジャンプ試行
-    void TryJump()
-    {
-        if (jumpBufferCounter <= 0) return;
-
-        //　壁ジャンプ処理
-        if (isOnWall && !isGrounded)
-        {
-            jumpBufferCounter = 0;
-            WallJump();
-            return;
-        }
-
-        //　通常ジャンプ・2段ジャンプ処理
-        if (jumpCount < maxJumpCount)
-        {
-            jumpCount++;
-            jumpBufferCounter = 0;
-            Jump();
-        }
-    }
-
-    //　壁張り付き処理
-    void ApplyWallSlide()
-    {
-        if (!isOnWall) return;
-        if (isGrounded) return;
-
-        if (rb.linearVelocity.y > 0) return;
-
-        //　落下速度制限
-        if (rb.linearVelocity.y < -wallSlideSpeed)
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
-        }
-    }
-
-    //　壁ジャンプ
-    void WallJump()
-    {
-        //　壁ジャンプ時向き調整
-        float direction = isOnLeftWall ? 1f : -1f;
-        if (direction > 0 && !isFacingRight) Flip();
-        if (direction < 0 && isFacingRight) Flip();
-
-        //　向き固定設定
-        isFacingLocked = true;
-        facingLockTimer = facingLockTime;
-
-        rb.linearVelocity = Vector2.zero;
-
-        rb.AddForce(
-            new Vector2(direction * wallJumpHorizontal, wallJumpPower),
-            ForceMode2D.Impulse
-        );
-
-        jumpCount = 1;
-        Debug.Log("壁ジャンプ");
-
-        wallJumpControlLockTimer = wallJumpControlLockTime; //　操作ロックタイマーセット
-    }
-
-    //　死亡処理
+    //　Deathアニメイベント(死亡処理)
     void Death()
     {
         if (!canControl) return;
 
         DisablePlayerControl();
-        animator.SetTrigger("die");
         gameManager.GameOver();
     }
 
-    //　地面判定
-    bool IsGrounded()
+    //　プレイヤー機能停止
+    void DisablePlayerControl()
     {
-
-        Vector3 leftStartPoint = transform.position - Vector3.right * 0.2f;
-        Vector3 rightStartPoint = transform.position + Vector3.right * 0.2f;
-        Vector3 endPoint = transform.position - Vector3.up * 0.1f;
-        Debug.DrawLine(leftStartPoint, endPoint);
-        Debug.DrawLine(rightStartPoint, endPoint);
-
-        return Physics2D.Linecast(leftStartPoint, endPoint, groundLayer)
-            || Physics2D.Linecast(rightStartPoint, endPoint, groundLayer);
+        canControl = false;
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false;
     }
 
-    //　地面状態更新
-    void UpdateGroundState()
+    //　Appearアニメイベント(操作可能切り替え)
+    void OnAppearFinished()
     {
-        //　ジャンプ直後の地面判定回避のため、groundIgnoreTimer中は強制的にisGrounded = false;
-        if (groundIgnoreTimer > 0)
-        {
-            groundIgnoreTimer -= Time.deltaTime;
-            isGrounded = false;
-        }
-        else
-        {
-            isGrounded = IsGrounded();
-        }
-
-        if (isGrounded && !wasGrounded)
-        {
-            jumpCount = 0;
-            Debug.Log("着地");
-        }
-        wasGrounded = isGrounded;
-    }
-
-    //　左壁判定
-    bool CheckLeftWall()
-    {
-        Vector3 upper = transform.position + Vector3.up * 0.4f;
-        Vector3 lower = transform.position + Vector3.up * 0.1f;
-
-        Vector3 upperEnd = upper - Vector3.right * 0.4f;
-        Vector3 lowerEnd = lower - Vector3.right * 0.4f;
-
-        Debug.DrawLine(upper, upperEnd, Color.red);
-        Debug.DrawLine(lower, lowerEnd, Color.red);
-
-        return Physics2D.Linecast(upper, upperEnd, wallLayer)
-            || Physics2D.Linecast(lower, lowerEnd, wallLayer);
-    }
-
-    //　右壁判定
-    bool CheckRightWall()
-    {
-        Vector3 upper = transform.position + Vector3.up * 0.4f;
-        Vector3 lower = transform.position + Vector3.up * 0.1f;
-
-        Vector3 upperEnd = upper + Vector3.right * 0.4f;
-        Vector3 lowerEnd = lower + Vector3.right * 0.4f;
-
-        Debug.DrawLine(upper, upperEnd, Color.red);
-        Debug.DrawLine(lower, lowerEnd, Color.red);
-
-        return Physics2D.Linecast(upper, upperEnd, wallLayer)
-            || Physics2D.Linecast(lower, lowerEnd, wallLayer);
-    }
-
-    //　壁状態更新
-    void UpdateWallState()
-    {
-        if (isGrounded)
-        {
-            isOnWall = false;
-            isOnLeftWall = false;
-            isOnRightWall = false;
-            return;
-        }
-
-        isOnLeftWall = CheckLeftWall();
-        isOnRightWall = CheckRightWall();
-        //Debug.Log("LeftWall: " + isOnLeftWall + " RightWall: " + isOnRightWall);
-        isOnWall = isOnLeftWall || isOnRightWall;
+        rb.simulated = true;
+        canControl = true;
+        ChangeState(PlayerState.Idle);
     }
 }

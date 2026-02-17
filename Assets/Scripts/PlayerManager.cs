@@ -64,6 +64,11 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] float jumpBufferTime = 0.1f;   //　入力猶予時間
     float jumpBufferCounter;                        //　猶予時間カウンター
 
+    //　動的重力調整用変数
+    [Header("重力調整用設定")]
+    [SerializeField] float riseGravity = 2f;    //　上昇中の重力倍率
+    [SerializeField] float fallGravity = 3f;    //　下降中の重力倍率
+
     //　レイヤー取得
     [Header("レイヤー設定")]
     [SerializeField] LayerMask groundLayer; //　地面判定
@@ -92,14 +97,18 @@ public class PlayerManager : MonoBehaviour
         UpdateWallState();          //　壁判定の更新
         UpdateJumpBuffer();         //　ジャンプ入力バッファ更新
 
+        CheckLeftWall();
+        CheckRightWall();
+
         UpdateState();            //　Player状態更新
         UpdateByState();          //　状態に応じた更新処理
 
-        Debug.Log("State: " + currentState);
         //　見た目・アニメ更新
         UpdateFacingLock();
         UpdateFacing();
         UpdateAnimator();
+
+        //Debug.Log(isGrounded);
     }
 
     private void FixedUpdate()
@@ -122,7 +131,8 @@ public class PlayerManager : MonoBehaviour
             ApplyWallSlide();
         }
 
-        TryJump();              //　ジャンプ入力時処理               
+        TryJump();              //　ジャンプ入力時処理
+        ApplyDynamicGravity();  //　動的重力調整
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -219,6 +229,7 @@ public class PlayerManager : MonoBehaviour
 
         PlayerState previousState = currentState;   //　前の状態保存(使用しないが将来の拡張用に)
         currentState = newState;
+        Debug.Log("State: " + currentState);
 
         switch (newState)
         {
@@ -401,8 +412,8 @@ public class PlayerManager : MonoBehaviour
     bool IsGrounded()
     {
 
-        Vector3 leftStartPoint = transform.position - Vector3.right * 0.2f;
-        Vector3 rightStartPoint = transform.position + Vector3.right * 0.2f;
+        Vector3 leftStartPoint = transform.position - Vector3.right * 0.3f;
+        Vector3 rightStartPoint = transform.position + Vector3.right * 0.3f;
         Vector3 endPoint = transform.position - Vector3.up * 0.1f;
         Debug.DrawLine(leftStartPoint, endPoint);
         Debug.DrawLine(rightStartPoint, endPoint);
@@ -431,11 +442,11 @@ public class PlayerManager : MonoBehaviour
     //　左壁判定
     bool CheckLeftWall()
     {
-        Vector3 upper = transform.position + Vector3.up * 0.4f;
-        Vector3 lower = transform.position + Vector3.up * 0.1f;
+        Vector3 upper = transform.position + Vector3.up * 1.0f;
+        Vector3 lower = transform.position + Vector3.up * 0.4f;
 
-        Vector3 upperEnd = upper - Vector3.right * 0.4f;
-        Vector3 lowerEnd = lower - Vector3.right * 0.4f;
+        Vector3 upperEnd = upper - Vector3.right * 0.6f;
+        Vector3 lowerEnd = lower - Vector3.right * 0.6f;
 
         Debug.DrawLine(upper, upperEnd, Color.red);
         Debug.DrawLine(lower, lowerEnd, Color.red);
@@ -447,11 +458,11 @@ public class PlayerManager : MonoBehaviour
     //　右壁判定
     bool CheckRightWall()
     {
-        Vector3 upper = transform.position + Vector3.up * 0.4f;
-        Vector3 lower = transform.position + Vector3.up * 0.1f;
+        Vector3 upper = transform.position + Vector3.up * 1.0f;
+        Vector3 lower = transform.position + Vector3.up * 0.4f;
 
-        Vector3 upperEnd = upper + Vector3.right * 0.4f;
-        Vector3 lowerEnd = lower + Vector3.right * 0.4f;
+        Vector3 upperEnd = upper + Vector3.right * 0.6f;
+        Vector3 lowerEnd = lower + Vector3.right * 0.6f;
 
         Debug.DrawLine(upper, upperEnd, Color.red);
         Debug.DrawLine(lower, lowerEnd, Color.red);
@@ -505,6 +516,25 @@ public class PlayerManager : MonoBehaviour
     }
 
     //　---特殊処理メソッド群---
+
+    //　動的重力調整
+    void ApplyDynamicGravity()
+    {
+        if (isGrounded)
+        {
+            rb.gravityScale = 2f; //　地面にいるときの重力
+            return;
+        }
+
+        if (rb.linearVelocity.y > 0.1f)
+        {
+            rb.gravityScale = riseGravity; //　上昇中の重力
+        }
+        else
+        {
+            rb.gravityScale = fallGravity; //　下降中の重力（落下を速くする）
+        }
+    }
 
     //　死亡状態リクエスト
     void RequestDeath()

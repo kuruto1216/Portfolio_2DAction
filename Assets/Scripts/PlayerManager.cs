@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerManager : MonoBehaviour
 {
-    //　===== 列挙型 =====
+    // ===== 列挙型 =====
     public enum PlayerState
     {
         Idle,
@@ -174,7 +174,7 @@ public class PlayerManager : MonoBehaviour
     }
 
 
-    // ===== 自作メソッド部分 =====
+    // ===== 自作メソッド =====
 
     //　---状態管理関連メソッド---
 

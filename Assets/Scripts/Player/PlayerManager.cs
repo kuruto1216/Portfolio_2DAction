@@ -536,6 +536,20 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    public void Bounce(float bouncePower)
+    {
+        if (!canControl) return;
+        if (currentState == PlayerState.Dead) return;
+
+        groundIgnoreTimer = groundIgnoreTime;
+
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+        rb.AddForce(Vector2.up * bouncePower, ForceMode2D.Impulse);
+
+        //　空中扱いでジャンプ回数消費
+        jumpCount = Mathf.Max(jumpCount, 1);
+    }
+
     //　死亡状態リクエスト
     void RequestDeath()
     {

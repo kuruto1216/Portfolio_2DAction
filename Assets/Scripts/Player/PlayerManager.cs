@@ -570,9 +570,11 @@ public class PlayerManager : MonoBehaviour
     //　プレイヤー機能停止
     void DisablePlayerControl()
     {
-        canControl = false;
-        rb.linearVelocity = Vector2.zero;
-        rb.simulated = false;
+        canControl = false;                 //　ロジック停止
+        move = 0f;                          //　入力停止
+        rb.linearVelocity = Vector2.zero;   //　速度停止
+        rb.angularVelocity = 0f;            //　回転停止
+        rb.simulated = false;               //　物理停止
     }
 
     //　Appearアニメイベント(操作可能切り替え)
@@ -581,5 +583,21 @@ public class PlayerManager : MonoBehaviour
         rb.simulated = true;
         canControl = true;
         ChangeState(PlayerState.Idle);
+    }
+
+    //　リスポーン処理
+    public void RespawnTo(Vector3 pos)
+    {
+        DisablePlayerControl();
+
+        transform.position = pos;   //　保存位置に移動
+
+        //　状態・アニメの強制リセット
+        ChangeState(PlayerState.Idle);
+        animator.SetInteger("State", (int)PlayerState.Idle);
+
+        //　Appearアニメ再生
+        animator.ResetTrigger("Appear");
+        animator.SetTrigger("Appear");
     }
 }

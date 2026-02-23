@@ -8,6 +8,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject gameClearText;
     [SerializeField] TextMeshProUGUI scoreText;
 
+    [Header("Respawn")]
+    [SerializeField] PlayerManager player;
+    [SerializeField] Transform defaultSpawnPoint;
+
     const int MAX_SCORE = 99;
     int score = 0;
 
@@ -30,13 +34,26 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         gameOverText.SetActive(true);
-        Invoke("RestartScene", 1.5f);
+        Invoke(nameof(Respawn), 1.5f);
     }
 
     public void GameClear()
     {
         gameClearText.SetActive(true);
-        Invoke("RestartScene", 1.5f);
+        Invoke(nameof(RestartScene), 1.5f);
+    }
+
+    void Respawn()
+    {
+        gameOverText.SetActive(false);
+
+        Vector3 spawnPos = defaultSpawnPoint.position;
+        if (CheckpointManager.Instance != null && CheckpointManager.Instance.HasCheckpoint)
+        {
+            spawnPos = CheckpointManager.Instance.RespawnPosition;
+        }
+
+        player.RespawnTo(spawnPos);
     }
 
     void RestartScene()

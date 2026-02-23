@@ -15,8 +15,8 @@ public class CheckpointManager : MonoBehaviour
             return;
         }
         Instance = this;
-        //　シーン内限定ならDontDestroyOnLoadは不要
-        //　DontDestroyOnLoad(gameObject);
+        // シーン内限定ならDontDestroyOnLoadは不要
+        // DontDestroyOnLoad(gameObject);
     }
 
     public void SetCheckpoint(Vector3 pos)

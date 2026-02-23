@@ -74,6 +74,9 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] LayerMask groundLayer; //　地面判定
     [SerializeField] LayerMask wallLayer;   //　壁判定
 
+    //　VisualのTransform取得（向き反転用）
+    [SerializeField] Transform visual;
+
     //　アニメーション
     Animator animator;
 
@@ -81,7 +84,7 @@ public class PlayerManager : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+        animator = GetComponentInChildren<Animator>();
     }
 
     private void Start()
@@ -510,9 +513,9 @@ public class PlayerManager : MonoBehaviour
     void Flip()
     {
         isFacingRight = !isFacingRight;
-        Vector3 scale = transform.localScale;
+        Vector3 scale = visual.localScale;
         scale.x *= -1;
-        transform.localScale = scale;
+        visual.localScale = scale;
     }
 
     //　---特殊処理メソッド群---
@@ -559,7 +562,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     //　Deathアニメイベント(死亡処理)
-    void Death()
+    public void Death()
     {
         if (!canControl) return;
 
@@ -578,7 +581,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     //　Appearアニメイベント(操作可能切り替え)
-    void OnAppearFinished()
+    public void OnAppearFinished()
     {
         rb.simulated = true;
         canControl = true;

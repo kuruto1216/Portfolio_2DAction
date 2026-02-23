@@ -834,6 +834,63 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e7c1ce37ccd8fed4cad7d64eb8b02133, type: 3}
+--- !u!1001 &207907253
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5790622199429163926, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_Name
+      value: Checkpoint (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 22.490953
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 16.929647
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
 --- !u!4 &220698903 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5226302207901673077, guid: e7c1ce37ccd8fed4cad7d64eb8b02133, type: 3}
@@ -32089,41 +32146,9 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
-      propertyPath: speed
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
-      propertyPath: jumpPower
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
       propertyPath: gameManager
       value: 
       objectReference: {fileID: 1639222684}
-    - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
-      propertyPath: riseGravity
-      value: 2.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
-      propertyPath: wallJumpPower
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
-      propertyPath: facingLockTime
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
-      propertyPath: wallSlideSpeed
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
-      propertyPath: wallJumpHorizontal
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
-      propertyPath: wallJumpControlLockTime
-      value: 0.2
-      objectReference: {fileID: 0}
     - target: {fileID: 665292375771832560, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -10.02
@@ -32323,3 +32348,4 @@ SceneRoots:
   - {fileID: 3053799069221225687}
   - {fileID: 1744989439}
   - {fileID: 639661877140617419}
+  - {fileID: 207907253}

@@ -34,7 +34,7 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] float jumpPower = 8f;  // ジャンプ力
     bool isGrounded;                        // 地面にいるか
     bool wasGrounded;                       // 空中から地面戻り判定用
-    bool canControl = false;                    // 操作可能状態か
+    bool canControl = false;                // 操作可能状態か
 
     // 壁ジャンプ用変数
     [Header("壁ジャンプ用設定")]
@@ -80,7 +80,14 @@ public class PlayerManager : MonoBehaviour
     // アニメーション
     Animator animator;
 
+    // 移動床用
     MovingPlatform currentPlatform;
+
+    // カメラ覗き込み用変数
+    [Header("カメラ用設定")]
+    [SerializeField] CameraLookController cameraLook;
+    Vector2 lookInput;
+    public bool IsOnGround => isGrounded;
 
     // ===== Unityイベント =====
     private void Awake()
@@ -101,9 +108,6 @@ public class PlayerManager : MonoBehaviour
         UpdateGroundState();        // 地面判定の更新
         UpdateWallState();          // 壁判定の更新
         UpdateJumpBuffer();         // ジャンプ入力バッファ更新
-
-        CheckLeftWall();
-        CheckRightWall();
 
         UpdateState();            // Player状態更新
         UpdateByState();          // 状態に応じた更新処理
@@ -204,6 +208,18 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    public void OnLook(InputValue value)
+    {
+        if (!canControl) return;
+
+        lookInput = value.Get<Vector2>();
+
+        // カメラ側へ入力値の受渡
+        if (cameraLook != null)
+        {
+            cameraLook.SetLookInput(lookInput);
+        }
+    }
 
     // ===== 自作メソッド =====
 
@@ -260,7 +276,7 @@ public class PlayerManager : MonoBehaviour
 
         PlayerState previousState = currentState;   // 前の状態保存(使用しないが将来の拡張用に)
         currentState = newState;
-        Debug.Log("State: " + currentState);
+        //Debug.Log("State: " + currentState);
 
         switch (newState)
         {

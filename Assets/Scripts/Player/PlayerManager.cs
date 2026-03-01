@@ -81,7 +81,14 @@ public class PlayerManager : MonoBehaviour
     Animator animator;
 
     // 移動床用
-    MovingPlatform currentPlatform;
+    IPlatformDelta currentPlatform;
+    bool isOnDeltaPlatform;
+
+    // 圧死判定用
+    [SerializeField] float crushNormalThreshold = 0.6f;
+
+    bool pressFromLeft_Rock, pressFromRight_Rock, pressFromUp_Rock, pressFromDown_Rock;
+    bool pressFromLeft_Other, pressFromRight_Other, pressFromUp_Other, pressFromDown_Other;
 
     // カメラ覗き込み用変数
     [Header("カメラ用設定")]
@@ -124,6 +131,11 @@ public class PlayerManager : MonoBehaviour
     {
         if (!canControl) return;
 
+        // 圧死フラグ初期化
+        pressFromLeft_Rock = pressFromRight_Rock = pressFromUp_Rock = pressFromDown_Rock = false;
+        pressFromLeft_Other = pressFromRight_Other = pressFromUp_Other = pressFromDown_Other = false;
+
+
         // 横移動処理（壁ジャンプ中は操作ロック）
         if (wallJumpControlLockTimer > 0)
         {
@@ -144,7 +156,7 @@ public class PlayerManager : MonoBehaviour
         ApplyDynamicGravity();  // 動的重力調整
 
         // 移動床の移動量を加算
-        if (isGrounded && currentPlatform != null)
+        if (isOnDeltaPlatform && currentPlatform != null)
         {
             rb.position += currentPlatform.Delta;
         }
@@ -171,7 +183,7 @@ public class PlayerManager : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        var platform = collision.collider.GetComponent<MovingPlatform>();
+        var platform = collision.collider.GetComponentInParent<IPlatformDelta>();
 
         if (platform != null)
         {
@@ -181,11 +193,101 @@ public class PlayerManager : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        var platform = collision.collider.GetComponent<MovingPlatform>();
+        var platform = collision.collider.GetComponentInParent<IPlatformDelta>();
 
         if (platform != null && currentPlatform == platform)
         {
             currentPlatform = null;
+            isOnDeltaPlatform = false;
+        }
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (!canControl) return;
+        if (currentState == PlayerState.Dead) return;
+
+        bool isGW = IsInLayerMask(collision.gameObject, groundLayer)
+                || IsInLayerMask(collision.gameObject, wallLayer)
+                || collision.gameObject.GetComponentInParent<RockHeadMarker>() != null;
+        if (!isGW) return;
+
+        int count = collision.contactCount;
+        for (int i = 0; i < count; i++)
+        {
+            var cp = collision.GetContact(i);
+
+            Collider2D other = cp.collider;     // 相手
+            Collider2D self = cp.otherCollider; // 自分
+            if (other == null) continue;
+
+            bool otherIsRock = IsRockHead(other);
+
+            Debug.Log($"self={self.name} other={other.name} n={cp.normal}");
+
+            // RockHead以外のGround/Wallを"Other"として扱う
+            bool otherIsGW = IsInLayerMask(other.gameObject, groundLayer)
+                        || IsInLayerMask(other.gameObject, wallLayer)
+                        || otherIsRock;
+            bool otherIsOther = otherIsGW && !otherIsRock;
+
+            Vector2 n = cp.normal; // 相手→Playerの法線
+
+            // 左から押される（→方向）: normal.x が +
+            if (n.x > crushNormalThreshold)
+            {
+                if (otherIsRock) pressFromLeft_Rock = true;
+                else if (otherIsOther) pressFromLeft_Other = true;
+            }
+            // 右から押される（←方向）: normal.x が -
+            else if (n.x < -crushNormalThreshold)
+            {
+                if (otherIsRock) pressFromRight_Rock = true;
+                else if (otherIsOther) pressFromRight_Other = true;
+            }
+
+            // 下から押される（↑方向）: normal.y が +
+            if (n.y > crushNormalThreshold)
+            {
+                if (otherIsRock) pressFromDown_Rock = true;
+                else if (otherIsOther) pressFromDown_Other = true;
+            }
+            // 上から押される（↓方向）: normal.y が -
+            else if (n.y < -crushNormalThreshold)
+            {
+                if (otherIsRock) pressFromUp_Rock = true;
+                else if (otherIsOther) pressFromUp_Other = true;
+            }
+        }
+
+        // ここまでで「この物理ステップ中に、どっち方向から押されたか」が溜まる
+        bool crushHorizontal =
+            (pressFromLeft_Rock && pressFromRight_Other) ||
+            (pressFromRight_Rock && pressFromLeft_Other);
+
+        bool crushVertical =
+            (pressFromUp_Rock && pressFromDown_Other) ||
+            (pressFromDown_Rock && pressFromUp_Other);
+
+        if (crushHorizontal || crushVertical)
+        {
+            RequestDeath();
+        }
+
+        var platform = collision.collider.GetComponentInParent<IPlatformDelta>();
+        if (platform != null)
+        {
+            // 接触点の法線が上向き（床）なら「乗ってる」
+            for (int i = 0; i < collision.contactCount; i++)
+            {
+                var cp = collision.GetContact(i);
+                if (cp.normal.y > 0.5f)
+                {
+                    currentPlatform = platform;
+                    isOnDeltaPlatform = true;
+                    break;
+                }
+            }
         }
     }
 
@@ -516,6 +618,18 @@ public class PlayerManager : MonoBehaviour
 
         return Physics2D.Linecast(upper, upperEnd, wallLayer)
             || Physics2D.Linecast(lower, lowerEnd, wallLayer);
+    }
+
+    // ---ユーティリティメソッド群---
+
+    static bool IsInLayerMask(GameObject obj, LayerMask mask)
+    {
+        return (mask.value & (1 << obj.layer)) != 0;
+    }
+
+    static bool IsRockHead(Collider2D col)
+    {
+        return col != null && col.GetComponentInParent<RockHeadMarker>() != null;
     }
 
     // ---見た目・アニメ関連メソッド群---

@@ -59,25 +59,20 @@ public class ThwompBase : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log($"Update state={state}");
-
         switch (state)
         {
             case ThwompState.Idle:
                 if (IsPlayerDetected())
                 {
-                    Debug.Log("Detected! -> Blink");
                     ChangeState(ThwompState.Blink);
                     timer = blinkTime;
                 }
                 break;
 
             case ThwompState.Blink:
-                Debug.Log($"Blink timer: {timer}");
                 timer -= Time.deltaTime;
                 if (timer <= 0f)
                 {
-                    Debug.Log("To Move!");
                     ChangeState(ThwompState.Move);
                 }
                 break;
@@ -174,14 +169,23 @@ public class ThwompBase : MonoBehaviour
     bool IsHitAhead()
     {
         // Colliderの中心から進行方向へ短くRaycast（必要なら複数本に増やす）
-        Vector2 origin = rb.position;
-        RaycastHit2D hit = Physics2D.Raycast(origin, MoveDir, hitRayDistance, hitLayer);
-        return hit.collider != null;
+        Vector2 origin = rb.position + MoveDir * 0.05f;
+
+        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, MoveDir, hitRayDistance, hitLayer);
+
+        foreach (var hit in hits)
+        {
+            if (hit.collider == null) continue;
+
+            if (hit.collider.transform.root == transform) continue;
+
+            return true;
+        }
+        return false;
     }
 
     void ChangeState(ThwompState next)
     {
-        Debug.Log($"ChangeState: {state} -> {next}");
         if (state == next) return;
 
         state = next;
@@ -200,7 +204,8 @@ public class ThwompBase : MonoBehaviour
     {
         // 検知ボックス可視化
         Vector2 dir = MoveDir;
-        Vector2 center = (Vector2)transform.position + dir * (detectBoxSize.x * 0.5f);
+        float half = (axis == MoveAxis.Down) ? (detectBoxSize.y * 0.5f) : (detectBoxSize.x * 0.5f);
+        Vector2 center = (Vector2)transform.position + dir * half;
         Gizmos.DrawWireCube(center, detectBoxSize);
 
         // Ray可視化

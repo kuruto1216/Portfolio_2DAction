@@ -2,7 +2,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 
-public class MovingPlatform : MonoBehaviour
+public class MovingPlatform : MonoBehaviour, IPlatformDelta
 {
     [Header("Move Points")]
     [SerializeField] private Transform startPoint;

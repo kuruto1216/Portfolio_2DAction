@@ -6,7 +6,7 @@ public class ItemManager : MonoBehaviour
 
     private void Start()
     {
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        gameManager = GameObject.Find("GameSystems").GetComponent<GameManager>();
     }
 
     public void GetItem()

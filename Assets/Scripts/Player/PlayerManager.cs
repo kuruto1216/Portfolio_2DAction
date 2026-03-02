@@ -747,7 +747,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // リスポーン処理
-    public void RespawnTo(Vector3 pos)
+    public void RespawnTo(Vector3 pos, bool playAppear = true)
     {
         DisablePlayerControl();
 
@@ -757,8 +757,11 @@ public class PlayerManager : MonoBehaviour
         ChangeState(PlayerState.Idle);
         animator.SetInteger("State", (int)PlayerState.Idle);
 
-        // Appearアニメ再生
-        animator.ResetTrigger("Appear");
-        animator.SetTrigger("Appear");
+        if (playAppear)
+        {
+            // Appearアニメ再生
+            animator.ResetTrigger("Appear");
+            animator.SetTrigger("Appear");
+        }
     }
 }

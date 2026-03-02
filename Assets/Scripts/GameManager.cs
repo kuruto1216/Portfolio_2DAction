@@ -12,12 +12,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] PlayerManager player;
     [SerializeField] Transform defaultSpawnPoint;
 
+    [Header("Scene")]
+    [SerializeField] private string hubSceneName = "Hub";
+
     const int MAX_SCORE = 99;
     int score = 0;
 
     private void Start()
     {
         scoreText.text = score.ToString();
+        player.RespawnTo(defaultSpawnPoint.position, false);
     }
     public void AddScore()
     {
@@ -40,7 +44,7 @@ public class GameManager : MonoBehaviour
     public void GameClear()
     {
         gameClearText.SetActive(true);
-        Invoke(nameof(RestartScene), 1.5f);
+        Invoke(nameof(GoToHub), 1.5f);
     }
 
     void Respawn()
@@ -56,9 +60,14 @@ public class GameManager : MonoBehaviour
         player.RespawnTo(spawnPos);
     }
 
-    void RestartScene()
+    //void RestartScene()
+    //{
+    //    Scene thisScene = SceneManager.GetActiveScene();
+    //    SceneManager.LoadScene(thisScene.name);
+    //}
+
+    void GoToHub()
     {
-        Scene thisScene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(thisScene.name);
+        SceneManager.LoadScene(hubSceneName);
     }
 }

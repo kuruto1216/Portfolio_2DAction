@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2952476009069852332}
   - component: {fileID: 145706987361325325}
   - component: {fileID: 4901978664224116837}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -132,6 +132,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   visual: {fileID: 4582652629103763368}
+  oneWayLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  dropThroughTime: 0.35
+  oneWayLayerName: OneWay
+  crushNormalThreshold: 0.6
+  cameraLook: {fileID: 0}
 --- !u!114 &4901978664224116837
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,6 +1,7 @@
 using NUnit.Framework.Constraints;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -84,7 +85,19 @@ public class PlayerManager : MonoBehaviour
     IPlatformDelta currentPlatform;
     bool isOnDeltaPlatform;
 
+    // OneWay床用
+    [Header("OneWay床設定")]
+    [SerializeField] LayerMask oneWayLayer;
+    [SerializeField] float dropThroughTime = 0.2f;  // すり抜け時間
+    [SerializeField] string oneWayLayerName = "OneWay";
+    int playerLayer;
+    int oneWayGroundLayer;
+
+    // 移動ポータル用
+    PortalEntrance currentPortal;
+
     // 圧死判定用
+    [Header("圧死判定設定")]
     [SerializeField] float crushNormalThreshold = 0.6f;
 
     bool pressFromLeft_Rock, pressFromRight_Rock, pressFromUp_Rock, pressFromDown_Rock;
@@ -101,6 +114,9 @@ public class PlayerManager : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponentInChildren<Animator>();
+
+        playerLayer = gameObject.layer;
+        oneWayGroundLayer = LayerMask.NameToLayer(oneWayLayerName);
     }
 
     private void Start()
@@ -123,8 +139,6 @@ public class PlayerManager : MonoBehaviour
         UpdateFacingLock();
         UpdateFacing();
         UpdateAnimator();
-
-        //Debug.Log(isGrounded);
     }
 
     private void FixedUpdate()
@@ -223,7 +237,7 @@ public class PlayerManager : MonoBehaviour
 
             bool otherIsRock = IsRockHead(other);
 
-            Debug.Log($"self={self.name} other={other.name} n={cp.normal}");
+            //Debug.Log($"self={self.name} other={other.name} n={cp.normal}");
 
             // RockHead以外のGround/Wallを"Other"として扱う
             bool otherIsGW = IsInLayerMask(other.gameObject, groundLayer)
@@ -321,6 +335,28 @@ public class PlayerManager : MonoBehaviour
         {
             cameraLook.SetLookInput(lookInput);
         }
+    }
+
+    public void OnDrop(InputValue value)
+    {
+        if (!canControl) return;
+        if (!value.isPressed) return;
+        if (!isGrounded) return;
+        if (!IsOneWay()) return;
+
+        DropThroughOneWay();
+    }
+
+    public void OnEnterPortal(InputValue value)
+    {
+        if (!canControl) return;
+        if (!value.isPressed) return;
+        if (currentPortal == null) return;
+        if (!IsGrounded()) return;
+
+        DisablePlayerControl();
+
+        SceneManager.LoadScene(currentPortal.SceneName);
     }
 
     // ===== 自作メソッド =====
@@ -496,7 +532,6 @@ public class PlayerManager : MonoBehaviour
         );
 
         jumpCount = 1;
-        //Debug.Log("壁ジャンプ");
 
         wallJumpControlLockTimer = wallJumpControlLockTime; // 操作ロックタイマーセット
     }
@@ -560,15 +595,25 @@ public class PlayerManager : MonoBehaviour
     // 地面判定
     bool IsGrounded()
     {
+        LayerMask groundMask = groundLayer | oneWayLayer;   // 通常床 or OneWay床
 
         Vector3 leftStartPoint = transform.position - Vector3.right * 0.3f;
         Vector3 rightStartPoint = transform.position + Vector3.right * 0.3f;
         Vector3 endPoint = transform.position - Vector3.up * 0.1f;
-        Debug.DrawLine(leftStartPoint, endPoint);
-        Debug.DrawLine(rightStartPoint, endPoint);
 
-        return Physics2D.Linecast(leftStartPoint, endPoint, groundLayer)
-            || Physics2D.Linecast(rightStartPoint, endPoint, groundLayer);
+        return Physics2D.Linecast(leftStartPoint, endPoint, groundMask)
+            || Physics2D.Linecast(rightStartPoint, endPoint, groundMask);
+    }
+
+    // OnyWay床判定
+    bool IsOneWay()
+    {
+        Vector3 leftStartPoint = transform.position - Vector3.right * 0.3f;
+        Vector3 rightStartPoint = transform.position + Vector3.right * 0.3f;
+        Vector3 endPoint = transform.position - Vector3.up * 0.1f;
+
+        return Physics2D.Linecast(leftStartPoint, endPoint, oneWayLayer)
+            || Physics2D.Linecast(rightStartPoint, endPoint, oneWayLayer);
     }
 
     // 壁状態更新
@@ -697,6 +742,25 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    // すり抜け処理
+    void DropThroughOneWay()
+    {
+        CancelInvoke(nameof(EnableOneWayCollision));    // 多重発火対策
+
+        groundIgnoreTimer = Mathf.Max(groundIgnoreTimer, dropThroughTime);  // 地面判定無視タイマー設定
+
+        // PlyerとOneWayGround間の衝突を一時的に解除
+        Physics2D.IgnoreLayerCollision(playerLayer, oneWayGroundLayer, true);
+
+        Invoke(nameof(EnableOneWayCollision), dropThroughTime); // 時間経過後戻す
+    }
+
+    // 衝突解除
+    void EnableOneWayCollision()
+    {
+        Physics2D.IgnoreLayerCollision(playerLayer, oneWayGroundLayer, false);
+    }
+
     public void Bounce(float bouncePower)
     {
         if (!canControl) return;
@@ -763,5 +827,16 @@ public class PlayerManager : MonoBehaviour
             animator.ResetTrigger("Appear");
             animator.SetTrigger("Appear");
         }
+    }
+
+    // Hubポータル入口用メソッド
+    public void SetCurrentPortal(PortalEntrance portal)
+    {
+        currentPortal = portal;
+    }
+
+    public void ClearCurrentPortal(PortalEntrance portal)
+    {
+        if (currentPortal == portal) currentPortal = null;
     }
 }

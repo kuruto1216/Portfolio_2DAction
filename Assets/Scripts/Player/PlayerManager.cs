@@ -14,6 +14,7 @@ public class PlayerManager : MonoBehaviour
         DoubleJump,
         Fall,
         WallSlide,
+        Dash,
         Dead
     }
 
@@ -23,12 +24,37 @@ public class PlayerManager : MonoBehaviour
 
     [SerializeField] GameManager gameManager;   // GameManager取得
 
+    // 能力解放デバッグ用
+    [Header("Abilities (Debug Toggle)")]
+    [SerializeField] private bool canJump = true;
+    [SerializeField] private bool canDoubleJump = true;
+    [SerializeField] private bool canWallJump = true;
+    [SerializeField] private bool canWallSlide = true;
+    [SerializeField] private bool canDash = true;  // ダッシュ実装予定
+
+    // 能力解放(実装予定)
+    private void SetDashEnabled(bool enabled) => canDash = enabled;
+    private void SetWallSlideEnabled(bool enabled) => canWallSlide = enabled;
+    private void SetcanDoubleJumpEnabled(bool enabled) => canDoubleJump = enabled;
+
     // 移動用変数
     [Header("移動速度")]
     [SerializeField] float speed = 5f;  // 移動速度（Inspectorから調整）
     float move;                         // 横移動（-1 ～ 1）
     bool isFacingRight = true;          // 右向き判定
     Rigidbody2D rb;                     // 物理操作用
+
+    // ダッシュ用変数
+    [Header("ダッシュ用設定")]
+    [SerializeField] private float dashSpeed = 18f;
+    [SerializeField] private float dashDuration = 0.10f;
+    [SerializeField] private float dashCooldown = 0.25f;
+    [SerializeField] private bool allowAirDash = true;
+    private bool isDashing;
+    private float dashTimer;
+    private float dashCooldownTimer;
+    private float dashDir;
+    private bool airDashUsed;
 
     // ジャンプ用変数
     [Header("ジャンプ力")]
@@ -132,6 +158,8 @@ public class PlayerManager : MonoBehaviour
         UpdateWallState();          // 壁判定の更新
         UpdateJumpBuffer();         // ジャンプ入力バッファ更新
 
+        UpdateDashTimers();         // ダッシュ管理(時間・空中回数)
+
         UpdateState();            // Player状態更新
         UpdateByState();          // 状態に応じた更新処理
 
@@ -151,23 +179,35 @@ public class PlayerManager : MonoBehaviour
 
 
         // 横移動処理（壁ジャンプ中は操作ロック）
-        if (wallJumpControlLockTimer > 0)
+        if (!isDashing)
         {
-            wallJumpControlLockTimer -= Time.fixedDeltaTime;
+            if (wallJumpControlLockTimer > 0)
+            {
+                wallJumpControlLockTimer -= Time.fixedDeltaTime;
+            }
+            else
+            {
+                rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
+            }
         }
-        else
+
+        // ダッシュ処理
+        if (isDashing)
         {
-            rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(dashDir * dashSpeed, 0f);
         }
 
         // 壁張り付き落下速度制限
-        if (currentState == PlayerState.WallSlide)
+        if (currentState == PlayerState.WallSlide && !isDashing)
         {
             ApplyWallSlide();
         }
 
-        TryJump();              // ジャンプ入力時処理
-        ApplyDynamicGravity();  // 動的重力調整
+        if (!isDashing)
+        {
+            TryJump();              // ジャンプ入力時処理
+            ApplyDynamicGravity();  // 動的重力調整
+        }
 
         // 移動床の移動量を加算
         if (isOnDeltaPlatform && currentPlatform != null)
@@ -317,11 +357,29 @@ public class PlayerManager : MonoBehaviour
     public void OnJump(InputValue value)
     {
         if (!canControl) return;
+        if (!canJump) return;   // Jump能力開放判定
 
         if (value.isPressed)
         {
             jumpBufferCounter = jumpBufferTime;
         }
+    }
+
+    public void OnDash(InputValue value)
+    {
+        if (!canControl) return;
+        if (!value.isPressed) return;
+        if (!canDash) return;
+        if (dashCooldownTimer > 0f) return;
+
+        if (!isGrounded)
+        {
+            if (!allowAirDash) return;
+            if (airDashUsed) return;
+            airDashUsed = true;
+        }
+
+        StartDash();
     }
 
     public void OnLook(InputValue value)
@@ -371,6 +429,12 @@ public class PlayerManager : MonoBehaviour
             return;
         }
 
+        if (isDashing)
+        {
+            ChangeState(PlayerState.Dash);
+            return;
+        }
+
         if (isGrounded)
         {
             if (Mathf.Abs(move) > 0.01f)
@@ -384,7 +448,7 @@ public class PlayerManager : MonoBehaviour
             return;
         }
 
-        if (isOnWall && rb.linearVelocity.y <= 0f)
+        if (canWallSlide && isOnWall && rb.linearVelocity.y <= 0f)
         {
             ChangeState(PlayerState.WallSlide);
             return;
@@ -501,6 +565,7 @@ public class PlayerManager : MonoBehaviour
     // 2段ジャンプ
     void AirJump()
     {
+        if (!canDoubleJump) return;     // 2段Jump能力解放判定
         if (jumpCount >= maxJumpCount) return;
 
         jumpCount++;
@@ -512,6 +577,8 @@ public class PlayerManager : MonoBehaviour
     // 壁ジャンプ
     void WallJump()
     {
+        if (!canWallJump) return;   // 壁Jump能力解放判定
+
         jumpBufferCounter = 0;
 
         // 壁ジャンプ時向き調整
@@ -567,6 +634,29 @@ public class PlayerManager : MonoBehaviour
         {
             jumpBufferCounter -= Time.deltaTime;
         }
+    }
+
+    // ダッシュ開始処理
+    void StartDash()
+    {
+        isDashing = true;
+        dashTimer = dashDuration;
+        dashCooldownTimer = dashCooldown;
+
+        dashDir = GetDashDirection();
+
+        // ダッシュ中向き固定
+        isFacingLocked = true;
+        facingLockTimer = dashDuration;
+
+        rb.linearVelocity = Vector2.zero;   // 開始時に速度リセット
+    }
+
+    float GetDashDirection()
+    {
+        if (move > 0.01f) return 1f;
+        if (move < -0.01f) return -1f;
+        return isFacingRight ? 1f : -1f;
     }
 
     // ---判定更新メソッド群---
@@ -663,6 +753,31 @@ public class PlayerManager : MonoBehaviour
 
         return Physics2D.Linecast(upper, upperEnd, wallLayer)
             || Physics2D.Linecast(lower, lowerEnd, wallLayer);
+    }
+
+    // ダッシュ管理
+    void UpdateDashTimers()
+    {
+        // クールタイム
+        if (dashCooldownTimer > 0f)
+        {
+            dashCooldownTimer -= Time.deltaTime;
+        }
+
+        // ダッシュ中の残り時間
+        if (isDashing)
+        {
+            dashTimer -= Time.deltaTime;
+            if (dashTimer < 0f)
+            {
+                isDashing = false;
+            }
+        }
+
+        if (isGrounded || currentState == PlayerState.WallSlide)
+        {
+            airDashUsed = false;
+        }
     }
 
     // ---ユーティリティメソッド群---
@@ -797,9 +912,35 @@ public class PlayerManager : MonoBehaviour
     {
         canControl = false;                 //　ロジック停止
         move = 0f;                          //　入力停止
+
+        ClearInputAndTransientStates();
+
         rb.linearVelocity = Vector2.zero;   //　速度停止
         rb.angularVelocity = 0f;            //　回転停止
         rb.simulated = false;               //　物理停止
+    }
+
+    void ClearInputAndTransientStates()
+    {
+        // 入力系
+        lookInput = Vector2.zero;
+
+        // ジャンプバッファ
+        jumpBufferCounter = 0f;
+
+        // ダッシュ系
+        isDashing = false;
+        dashTimer = 0f;
+        dashCooldownTimer = 0f;
+        airDashUsed = false;
+
+        // 壁ジャンプロック類
+        wallJumpControlLockTimer = 0f;
+        facingLockTimer = 0f;
+        isFacingLocked = false;
+
+        // 地面無視タイマー（落下直後の変な判定防止）
+        groundIgnoreTimer = 0f;
     }
 
     // Appearアニメイベント(操作可能切り替え)

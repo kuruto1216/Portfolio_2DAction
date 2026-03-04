@@ -113,7 +113,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
   gameManager: {fileID: 0}
+  canJump: 1
+  canDoubleJump: 1
+  canWallJump: 1
+  canWallSlide: 1
+  canDash: 0
   speed: 8
+  dashSpeed: 24
+  dashDuration: 0.15
+  dashCooldown: 0.25
+  allowAirDash: 1
   jumpPower: 12
   wallJumpPower: 12
   wallJumpHorizontal: 8

@@ -59,9 +59,12 @@ public class PlayerManager : MonoBehaviour
     // ジャンプ用変数
     [Header("ジャンプ力")]
     [SerializeField] float jumpPower = 8f;  // ジャンプ力
+    [Header("可変ジャンプ設定")]
+    [SerializeField] float jumpCutMultiplier = 0.5f;
     bool isGrounded;                        // 地面にいるか
     bool wasGrounded;                       // 空中から地面戻り判定用
     bool canControl = false;                // 操作可能状態か
+    bool jumpReleased;
 
     // 壁ジャンプ用変数
     [Header("壁ジャンプ用設定")]
@@ -206,6 +209,7 @@ public class PlayerManager : MonoBehaviour
         if (!isDashing)
         {
             TryJump();              // ジャンプ入力時処理
+            ApplyJumpCut();         // 可変ジャンプ調整
             ApplyDynamicGravity();  // 動的重力調整
         }
 
@@ -347,28 +351,34 @@ public class PlayerManager : MonoBehaviour
 
     // ===== InputSystemイベント部分 =====
 
-    public void OnMove(InputValue value)
+    public void OnMove(InputAction.CallbackContext context)
     {
         if (!canControl) return;
 
-        move = value.Get<float>();
+        move = context.ReadValue<float>();
     }
 
-    public void OnJump(InputValue value)
+    public void OnJump(InputAction.CallbackContext context)
     {
         if (!canControl) return;
         if (!canJump) return;   // Jump能力開放判定
 
-        if (value.isPressed)
+        if (context.performed)
         {
+            Debug.Log("ジャンプ");
             jumpBufferCounter = jumpBufferTime;
+        }
+        else if (context.canceled)
+        {
+            jumpReleased = true;
+            Debug.Log("ジャンプボタンを離しました");
         }
     }
 
-    public void OnDash(InputValue value)
+    public void OnDash(InputAction.CallbackContext context)
     {
         if (!canControl) return;
-        if (!value.isPressed) return;
+        if (!context.performed) return;
         if (!canDash) return;
         if (dashCooldownTimer > 0f) return;
 
@@ -382,11 +392,11 @@ public class PlayerManager : MonoBehaviour
         StartDash();
     }
 
-    public void OnLook(InputValue value)
+    public void OnLook(InputAction.CallbackContext context)
     {
         if (!canControl) return;
 
-        lookInput = value.Get<Vector2>();
+        lookInput = context.ReadValue<Vector2>();
 
         // カメラ側へ入力値の受渡
         if (cameraLook != null)
@@ -395,20 +405,20 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    public void OnDrop(InputValue value)
+    public void OnDrop(InputAction.CallbackContext context)
     {
         if (!canControl) return;
-        if (!value.isPressed) return;
+        if (!context.performed) return;
         if (!isGrounded) return;
         if (!IsOneWay()) return;
 
         DropThroughOneWay();
     }
 
-    public void OnEnterPortal(InputValue value)
+    public void OnEnterPortal(InputAction.CallbackContext context)
     {
         if (!canControl) return;
-        if (!value.isPressed) return;
+        if (!context.performed) return;
         if (currentPortal == null) return;
         if (!IsGrounded()) return;
 
@@ -854,6 +864,22 @@ public class PlayerManager : MonoBehaviour
         else
         {
             rb.gravityScale = fallGravity; // 下降中の重力（落下を速くする）
+        }
+    }
+
+    // 可変ジャンプ調整
+    void ApplyJumpCut()
+    {
+        if (!jumpReleased) return;
+
+        jumpReleased = false;
+
+        if (rb.linearVelocity.y > 0f)
+        {
+            rb.linearVelocity = new Vector2(
+                rb.linearVelocity.x,
+                rb.linearVelocity.y * jumpCutMultiplier
+            );
         }
     }
 

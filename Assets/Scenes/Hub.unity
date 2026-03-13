@@ -43620,7 +43620,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 236df61237558544bbdda45e36ca16b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PortalEntrance
-  sceneName: Stage01
+  sceneName: Stage1-1
 --- !u!61 &465919978
 BoxCollider2D:
   m_ObjectHideFlags: 0

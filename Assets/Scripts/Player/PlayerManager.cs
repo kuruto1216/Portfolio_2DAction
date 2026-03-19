@@ -18,11 +18,11 @@ public class PlayerManager : MonoBehaviour
         Dead
     }
 
-    PlayerState currentState;
+    private PlayerState currentState;
 
     // ===== 変数 =====
 
-    [SerializeField] GameManager gameManager;   // GameManager取得
+    [SerializeField] private GameManager gameManager;   // GameManager取得
 
     // 能力解放デバッグ用
     [Header("Abilities (Debug Toggle)")]
@@ -35,14 +35,14 @@ public class PlayerManager : MonoBehaviour
     // 能力解放(実装予定)
     private void SetDashEnabled(bool enabled) => canDash = enabled;
     private void SetWallSlideEnabled(bool enabled) => canWallSlide = enabled;
-    private void SetcanDoubleJumpEnabled(bool enabled) => canDoubleJump = enabled;
+    private void SetDoubleJumpEnabled(bool enabled) => canDoubleJump = enabled;
 
     // 移動用変数
     [Header("移動速度")]
-    [SerializeField] float speed = 5f;  // 移動速度（Inspectorから調整）
-    float move;                         // 横移動（-1 ～ 1）
-    bool isFacingRight = true;          // 右向き判定
-    Rigidbody2D rb;                     // 物理操作用
+    [SerializeField] private float speed = 5f;  // 移動速度（Inspectorから調整）
+    private float move;                         // 横移動（-1 ～ 1）
+    private bool isFacingRight = true;          // 右向き判定
+    private Rigidbody2D rb;                     // 物理操作用
 
     // ダッシュ用変数
     [Header("ダッシュ用設定")]
@@ -58,84 +58,84 @@ public class PlayerManager : MonoBehaviour
 
     // ジャンプ用変数
     [Header("ジャンプ力")]
-    [SerializeField] float jumpPower = 8f;  // ジャンプ力
+    [SerializeField] private float jumpPower = 8f;  // ジャンプ力
     [Header("可変ジャンプ設定")]
-    [SerializeField] float jumpCutMultiplier = 0.5f;
-    bool isGrounded;                        // 地面にいるか
-    bool wasGrounded;                       // 空中から地面戻り判定用
-    bool canControl = false;                // 操作可能状態か
-    bool jumpReleased;
+    [SerializeField] private float jumpCutMultiplier = 0.5f;
+    private bool isGrounded;                        // 地面にいるか
+    private bool wasGrounded;                       // 空中から地面戻り判定用
+    private bool canControl = false;                // 操作可能状態か
+    private bool jumpReleased;
 
     // 壁ジャンプ用変数
     [Header("壁ジャンプ用設定")]
-    [SerializeField] float wallJumpPower = 8f;      // 壁ジャンプ力
-    [SerializeField] float wallJumpHorizontal = 5f; // 壁ジャンプ横方向力
-    [SerializeField] float wallSlideSpeed = 1f;     // 壁張り付き中の最大落下速度
-    bool isOnWall;                          // 壁接触判定
-    bool isOnLeftWall;                      // 左壁接触判定
-    bool isOnRightWall;                     // 右壁接触判定
+    [SerializeField] private float wallJumpPower = 8f;      // 壁ジャンプ力
+    [SerializeField] private float wallJumpHorizontal = 5f; // 壁ジャンプ横方向力
+    [SerializeField] private float wallSlideSpeed = 1f;     // 壁張り付き中の最大落下速度
+    private bool isOnWall;                          // 壁接触判定
+    private bool isOnLeftWall;                      // 左壁接触判定
+    private bool isOnRightWall;                     // 右壁接触判定
 
     // 壁ジャンプ中ロック変数
-    [SerializeField] float wallJumpControlLockTime = 0.2f;  // 壁ジャンプ後の操作ロック時間
-    [SerializeField] float facingLockTime = 0.2f;           // 壁ジャンプ後の向き固定時間
-    float wallJumpControlLockTimer;     // 操作ロックタイマー
-    float facingLockTimer;              // 向き固定タイマー
-    bool isFacingLocked;                // 向き固定判定
+    [SerializeField] private float wallJumpControlLockTime = 0.2f;  // 壁ジャンプ後の操作ロック時間
+    [SerializeField] private float facingLockTime = 0.2f;           // 壁ジャンプ後の向き固定時間
+    private float wallJumpControlLockTimer;     // 操作ロックタイマー
+    private float facingLockTimer;              // 向き固定タイマー
+    private bool isFacingLocked;                // 向き固定判定
 
     // 2段ジャンプ用変数
     [Header("2段ジャンプ用設定")]
-    [SerializeField] int maxJumpCount = 2;  // 最大ジャンプ可能数
-    int jumpCount;                          // ジャンプ回数カウンター
-    [SerializeField] float groundIgnoreTime = 0.1f; // 地面判定無視時間
-    float groundIgnoreTimer;                        // 無視時間タイマー
+    [SerializeField] private int maxJumpCount = 2;  // 最大ジャンプ可能数
+    private int jumpCount;                          // ジャンプ回数カウンター
+    [SerializeField] private float groundIgnoreTime = 0.1f; // 地面判定無視時間
+    private float groundIgnoreTimer;                        // 無視時間タイマー
 
     // ジャンプバッファ
     [Header("ジャンプ入力猶予時間")]
-    [SerializeField] float jumpBufferTime = 0.1f;   // 入力猶予時間
-    float jumpBufferCounter;                        // 猶予時間カウンター
+    [SerializeField] private float jumpBufferTime = 0.1f;   // 入力猶予時間
+    private float jumpBufferCounter;                        // 猶予時間カウンター
 
     // 動的重力調整用変数
     [Header("重力調整用設定")]
-    [SerializeField] float riseGravity = 2f;    // 上昇中の重力倍率
-    [SerializeField] float fallGravity = 3f;    // 下降中の重力倍率
+    [SerializeField] private float riseGravity = 2f;    // 上昇中の重力倍率
+    [SerializeField] private float fallGravity = 3f;    // 下降中の重力倍率
 
     // レイヤー取得
     [Header("レイヤー設定")]
-    [SerializeField] LayerMask groundLayer; // 地面判定
-    [SerializeField] LayerMask wallLayer;   // 壁判定
+    [SerializeField] private LayerMask groundLayer; // 地面判定
+    [SerializeField] private LayerMask wallLayer;   // 壁判定
 
     // VisualのTransform取得（向き反転用）
-    [SerializeField] Transform visual;
+    [SerializeField] private Transform visual;
 
     // アニメーション
-    Animator animator;
+    private Animator animator;
 
     // 移動床用
-    IPlatformDelta currentPlatform;
-    bool isOnDeltaPlatform;
+    private IPlatformDelta currentPlatform;
+    private bool isOnDeltaPlatform;
 
     // OneWay床用
     [Header("OneWay床設定")]
-    [SerializeField] LayerMask oneWayLayer;
-    [SerializeField] float dropThroughTime = 0.2f;  // すり抜け時間
-    [SerializeField] string oneWayLayerName = "OneWay";
-    int playerLayer;
-    int oneWayGroundLayer;
+    [SerializeField] private LayerMask oneWayLayer;
+    [SerializeField] private float dropThroughTime = 0.2f;  // すり抜け時間
+    [SerializeField] private string oneWayLayerName = "OneWay";
+    private int playerLayer;
+    private int oneWayGroundLayer;
 
     // 移動ポータル用
-    PortalEntrance currentPortal;
+    private PortalEntrance currentPortal;
 
     // 圧死判定用
     [Header("圧死判定設定")]
-    [SerializeField] float crushNormalThreshold = 0.6f;
+    [SerializeField] private float crushNormalThreshold = 0.6f;
 
-    bool pressFromLeft_Rock, pressFromRight_Rock, pressFromUp_Rock, pressFromDown_Rock;
-    bool pressFromLeft_Other, pressFromRight_Other, pressFromUp_Other, pressFromDown_Other;
+    private bool pressFromLeft_Rock, pressFromRight_Rock, pressFromUp_Rock, pressFromDown_Rock;
+    private bool pressFromLeft_Other, pressFromRight_Other, pressFromUp_Other, pressFromDown_Other;
 
     // カメラ覗き込み用変数
     [Header("カメラ用設定")]
-    [SerializeField] CameraLookController cameraLook;
-    Vector2 lookInput;
+    [SerializeField] private CameraLookController cameraLook;
+    private Vector2 lookInput;
     public bool IsOnGround => isGrounded;
 
     // ===== Unityイベント =====
@@ -365,13 +365,11 @@ public class PlayerManager : MonoBehaviour
 
         if (context.performed)
         {
-            Debug.Log("ジャンプ");
             jumpBufferCounter = jumpBufferTime;
         }
         else if (context.canceled)
         {
             jumpReleased = true;
-            Debug.Log("ジャンプボタンを離しました");
         }
     }
 
@@ -488,7 +486,7 @@ public class PlayerManager : MonoBehaviour
 
         PlayerState previousState = currentState;   // 前の状態保存(使用しないが将来の拡張用に)
         currentState = newState;
-        //Debug.Log("State: " + currentState);
+        Debug.Log("State: " + currentState);
 
         switch (newState)
         {

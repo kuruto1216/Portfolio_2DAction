@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5967809967657244306}
   - component: {fileID: 7479208144384876812}
   m_Layer: 6
-  m_Name: FallingPlatforms
+  m_Name: FallingPlatform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -203,5 +203,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FallingPlatform
   fallDelay: 0.5
-  fallDistance: 5
+  fallDistance: 20
   fallDuration: 1
+  respawnDelay: 2
+  sinkDistance: 0.2
+  sinkDuration: 0.15

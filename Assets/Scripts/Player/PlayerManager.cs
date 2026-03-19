@@ -94,6 +94,11 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] private float jumpBufferTime = 0.1f;   // 入力猶予時間
     private float jumpBufferCounter;                        // 猶予時間カウンター
 
+    // コヨーテタイム
+    [Header("コヨーテタイム設定")]
+    [SerializeField] private float coyoteTime = 0.1f;
+    private float coyoteTimer;
+
     // 動的重力調整用変数
     [Header("重力調整用設定")]
     [SerializeField] private float riseGravity = 2f;    // 上昇中の重力倍率
@@ -486,7 +491,7 @@ public class PlayerManager : MonoBehaviour
 
         PlayerState previousState = currentState;   // 前の状態保存(使用しないが将来の拡張用に)
         currentState = newState;
-        Debug.Log("State: " + currentState);
+        //Debug.Log("State: " + currentState);
 
         switch (newState)
         {
@@ -543,24 +548,21 @@ public class PlayerManager : MonoBehaviour
     // ジャンプ試行
     void TryJump()
     {
-        if (jumpBufferCounter <= 0) return;
+        if (jumpBufferCounter <= 0f) return;
 
-        switch (currentState)
+        if (isGrounded || coyoteTimer > 0f)
         {
-            case PlayerState.Idle:
-            case PlayerState.Run:
-                GroundJump();
-                break;
-
-            case PlayerState.Jump:
-            case PlayerState.Fall:
-                AirJump();
-                break;
-
-            case PlayerState.WallSlide:
-                WallJump();
-                break;
+            GroundJump();
+            return;
         }
+
+        if (currentState == PlayerState.WallSlide)
+        {
+            WallJump();
+            return;
+        }
+
+        AirJump();
     }
 
     void GroundJump()
@@ -687,6 +689,16 @@ public class PlayerManager : MonoBehaviour
         {
             jumpCount = 0;
         }
+
+        if (isGrounded)
+        {
+            coyoteTimer = coyoteTime;
+        }
+        else
+        {
+            coyoteTimer = Mathf.Max(coyoteTimer - Time.deltaTime, 0f);
+        }
+
         wasGrounded = isGrounded;
     }
 
@@ -948,9 +960,11 @@ public class PlayerManager : MonoBehaviour
     {
         // 入力系
         lookInput = Vector2.zero;
+        jumpReleased = false;
 
         // ジャンプバッファ
         jumpBufferCounter = 0f;
+        coyoteTimer = 0f;
 
         // ダッシュ系
         isDashing = false;
@@ -971,6 +985,13 @@ public class PlayerManager : MonoBehaviour
     public void OnAppearFinished()
     {
         rb.simulated = true;
+
+        isGrounded = false;
+        wasGrounded = false;
+        isOnWall = false;
+        isOnLeftWall = false;
+        isOnRightWall = false;
+
         canControl = true;
         ChangeState(PlayerState.Idle);
     }

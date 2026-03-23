@@ -35535,7 +35535,7 @@ PlatformEffector2D:
     m_Bits: 4294967295
   m_RotationalOffset: 0
   m_UseOneWay: 1
-  m_UseOneWayGrouping: 0
+  m_UseOneWayGrouping: 1
   m_SurfaceArc: 160
   m_UseSideFriction: 0
   m_UseSideBounce: 0
@@ -35678,15 +35678,15 @@ CompositeCollider2D:
       - X: 629374976
         Y: 55625000
     - - X: 160000000
-        Y: 6250000
+        Y: -3750000
       - X: 160000000
-        Y: 10000000
+        Y: 0
       - X: 150000000
-        Y: 10000000
+        Y: 0
       - X: 150000000
-        Y: 5625000
+        Y: -4375000
       - X: 159375008
-        Y: 5625000
+        Y: -4375000
   m_CompositePaths:
     m_Paths:
     - - {x: 93.937485, y: 15.562499}
@@ -35737,11 +35737,11 @@ CompositeCollider2D:
       - {x: 60, y: 5.999971}
       - {x: 60.000008, y: 5.6249924}
       - {x: 60.062515, y: 5.5625}
-    - - {x: 15.9374895, y: 0.5625}
-      - {x: 16, y: 0.6250108}
-      - {x: 15.999971, y: 1}
-      - {x: 15, y: 0.99997073}
-      - {x: 15.000029, y: 0.5625}
+    - - {x: 15.9374895, y: -0.4375}
+      - {x: 16, y: -0.3749892}
+      - {x: 15.999971, y: 0}
+      - {x: 15, y: -0.000029300001}
+      - {x: 15.000029, y: -0.4375}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
@@ -35876,7 +35876,7 @@ Tilemap:
   m_GameObject: {fileID: 1263061435}
   m_Enabled: 1
   m_Tiles:
-  - first: {x: 15, y: 0, z: 0}
+  - first: {x: 15, y: -1, z: 0}
     second:
       serializedVersion: 2
       m_TileIndex: 0
@@ -36148,8 +36148,8 @@ Tilemap:
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Origin: {x: 0, y: 0, z: 0}
-  m_Size: {x: 98, y: 18, z: 1}
+  m_Origin: {x: 0, y: -1, z: 0}
+  m_Size: {x: 98, y: 19, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:

@@ -313,6 +313,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 733221611ca00aa4fa12ec09cf006bef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JumpPad
-  bouncePower: 12
+  bouncePower: 17
   cooldown: 0.5
   visualAnimator: {fileID: 5423578509629648104}

@@ -25467,7 +25467,7 @@ PlatformEffector2D:
     m_Bits: 4294967295
   m_RotationalOffset: 0
   m_UseOneWay: 1
-  m_UseOneWayGrouping: 0
+  m_UseOneWayGrouping: 1
   m_SurfaceArc: 160
   m_UseSideFriction: 0
   m_UseSideBounce: 0
@@ -25524,15 +25524,15 @@ CompositeCollider2D:
       - X: 1069374976
         Y: 15625000
     - - X: 870000000
-        Y: 6250000
+        Y: -3750000
       - X: 870000000
-        Y: 10000000
+        Y: 0
       - X: 860000000
-        Y: 10000000
+        Y: 0
       - X: 860000000
-        Y: 5625000
+        Y: -4375000
       - X: 869374976
-        Y: 5625000
+        Y: -4375000
     - - X: 1080000000
         Y: -3750000
       - X: 1080000000
@@ -25550,16 +25550,16 @@ CompositeCollider2D:
       - {x: 106.99997, y: 2}
       - {x: 106, y: 1.9999708}
       - {x: 106.00003, y: 1.5625}
-    - - {x: 86.937485, y: 0.5625}
-      - {x: 87, y: 0.6250108}
-      - {x: 86.99997, y: 1}
-      - {x: 86, y: 0.99997073}
-      - {x: 86.00003, y: 0.5625}
     - - {x: 107.937485, y: -0.4375}
       - {x: 108, y: -0.3749892}
       - {x: 107.99998, y: 0}
       - {x: 106, y: -0.000029300001}
       - {x: 106.00003, y: -0.4375}
+    - - {x: 86.937485, y: -0.4375}
+      - {x: 87, y: -0.3749892}
+      - {x: 86.99997, y: 0}
+      - {x: 86, y: -0.000029300001}
+      - {x: 86.00003, y: -0.4375}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
@@ -25694,6 +25694,16 @@ Tilemap:
   m_GameObject: {fileID: 1263061435}
   m_Enabled: 1
   m_Tiles:
+  - first: {x: 86, y: -1, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 1
+      m_TileSpriteIndex: 1
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741825
   - first: {x: 106, y: -1, z: 0}
     second:
       serializedVersion: 2
@@ -25705,16 +25715,6 @@ Tilemap:
       dummyAlignment: 0
       m_AllTileFlags: 1073741825
   - first: {x: 107, y: -1, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 1
-      m_TileSpriteIndex: 1
-      m_TileMatrixIndex: 0
-      m_TileColorIndex: 0
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741825
-  - first: {x: 86, y: 0, z: 0}
     second:
       serializedVersion: 2
       m_TileIndex: 1

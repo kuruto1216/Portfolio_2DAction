@@ -704,11 +704,23 @@ public class PlayerManager : MonoBehaviour
     // ínñ îªíË
     bool IsGrounded()
     {
-        LayerMask groundMask = groundLayer | oneWayLayer;   // í èÌè∞ or OneWayè∞
+        LayerMask groundMask;
+
+        if (rb.linearVelocity.y > 0.05f)
+        {
+            groundMask = groundLayer;     // è„è∏íÜ:OneWayñ≥éã
+        }
+        else
+        {
+            groundMask = groundLayer | oneWayLayer;
+        }
 
         Vector3 leftStartPoint = transform.position - Vector3.right * 0.3f;
         Vector3 rightStartPoint = transform.position + Vector3.right * 0.3f;
         Vector3 endPoint = transform.position - Vector3.up * 0.1f;
+
+        Debug.DrawLine(leftStartPoint, endPoint, Color.yellow);
+        Debug.DrawLine(rightStartPoint, endPoint,Color.yellow);
 
         return Physics2D.Linecast(leftStartPoint, endPoint, groundMask)
             || Physics2D.Linecast(rightStartPoint, endPoint, groundMask);

@@ -129,6 +129,9 @@ public class PlayerManager : MonoBehaviour
     // 移動ポータル用
     private PortalEntrance currentPortal;
 
+    // 解放ゲート用
+    private GateTrigger currentGate;
+
     // 圧死判定用
     [Header("圧死判定設定")]
     [SerializeField] private float crushNormalThreshold = 0.6f;
@@ -239,7 +242,10 @@ public class PlayerManager : MonoBehaviour
         }
         if (collision.CompareTag("Item"))
         {
-            collision.gameObject.GetComponent<ItemManager>().GetItem();
+            if (collision.TryGetComponent<ItemManager>(out var item))
+            {
+                gameManager.CollectItem(item);
+            }
         }
     }
 
@@ -421,12 +427,19 @@ public class PlayerManager : MonoBehaviour
     {
         if (!canControl) return;
         if (!context.performed) return;
-        if (currentPortal == null) return;
         if (!IsGrounded()) return;
 
-        DisablePlayerControl();
+        if (currentGate != null)
+        {
+            currentGate.TryUnlock();
+            return;
+        }
 
-        SceneManager.LoadScene(currentPortal.SceneName);
+        if (currentPortal != null)
+        {
+            DisablePlayerControl();
+            SceneManager.LoadScene(currentPortal.SceneName);
+        }
     }
 
     // ===== 自作メソッド =====
@@ -869,6 +882,26 @@ public class PlayerManager : MonoBehaviour
 
     // ---特殊処理メソッド群---
 
+    // 能力反映
+    public void ApplyAbilities(PlayerAbilityData data)
+    {
+        if (data == null) return;
+
+        canJump = data.canJump;
+        canDash = data.canDash;
+        canWallSlide = data.canWallSlide;
+        canWallJump = data.canWallJump;
+        canDoubleJump = data.canDoubleJump;
+    }
+
+    // 能力反映メソッド呼び出し
+    public void RefreshAbilities()
+    {
+        if (ProgressManager.Instance == null) return;
+
+        ApplyAbilities(ProgressManager.Instance.Abilities);
+    }
+
     // 動的重力調整
     void ApplyDynamicGravity()
     {
@@ -1035,5 +1068,19 @@ public class PlayerManager : MonoBehaviour
     public void ClearCurrentPortal(PortalEntrance portal)
     {
         if (currentPortal == portal) currentPortal = null;
+    }
+
+    // 解放ゲート用メソッド
+    public void SetCurrentGate(GateTrigger gate)
+    {
+        currentGate = gate;
+    }
+
+    public void ClearCurrentGate(GateTrigger gate)
+    {
+        if (currentGate == gate)
+        {
+            currentGate = null;
+        }
     }
 }

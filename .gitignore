@@ -75,5 +75,4 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 # TextMeshPro Font Assets
-*.asset
 * SDF.asset

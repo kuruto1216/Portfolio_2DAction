@@ -11,6 +11,9 @@ public class ProgressManager : MonoBehaviour
     [Header("Abilities")]
     [SerializeField] private PlayerAbilityData abilities = new PlayerAbilityData();
 
+    [Header("Hub Respawn")]
+    [SerializeField] private string lastHubCheckpointId = "";
+
     [SerializeField] private bool isArea2Unlocked;
     [SerializeField] private bool isArea3Unlocked;
 
@@ -18,10 +21,11 @@ public class ProgressManager : MonoBehaviour
     [SerializeField] private int phase1UnlockRequiredFruit = 10;
     [SerializeField] private int phase2UnlockRequiredFruit = 20;
 
-
     public IReadOnlyList<StageProgressData> StageProgressList => stageProgressList;
     public PlayerAbilityData Abilities => abilities;
+    public string LastHubCheckpointId => lastHubCheckpointId;
 
+    private readonly HashSet<string> activatedHubCheckpointIds = new();
     private Dictionary<string, StageProgressData> stageProgressMap = new Dictionary<string, StageProgressData>();
 
     public bool IsArea2Unlocked() => isArea2Unlocked;
@@ -190,5 +194,28 @@ public class ProgressManager : MonoBehaviour
     {
         if (!CanUnlockArea3()) return;
         isArea3Unlocked = true;
+    }
+
+    public void SetLastHubCheckpoint(string checkpointId)
+    {
+        if (string.IsNullOrEmpty(checkpointId)) return;
+        lastHubCheckpointId = checkpointId;
+    }
+
+    public void ActivateHubCheckpoint(string checkpointId)
+    {
+        if (string.IsNullOrEmpty(checkpointId)) return;
+        activatedHubCheckpointIds.Add(checkpointId);
+        lastHubCheckpointId = checkpointId;
+    }
+
+    public bool IsHubCheckpointActivated(string checkpointId)
+    {
+        if (string.IsNullOrEmpty(checkpointId)) return false;
+        return activatedHubCheckpointIds.Contains(checkpointId);
+    }
+    public void ClearLastHubCheckpoint()
+    {
+        lastHubCheckpointId = "";
     }
 }

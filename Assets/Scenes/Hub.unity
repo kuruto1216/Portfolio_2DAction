@@ -2397,48 +2397,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 371415255}
-  - component: {fileID: 371415254}
-  - component: {fileID: 371415253}
+  - component: {fileID: 371415256}
   m_Layer: 0
-  m_Name: GameSystems
+  m_Name: HubGameSystems
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &371415253
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 371415252}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da8edbfa7b274924a84cbdebf216e1aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CheckpointManager
---- !u!114 &371415254
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 371415252}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4346b37f83415254db354c4f8116128b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  gameOverText: {fileID: 698703320}
-  gameClearText: {fileID: 1998608166}
-  scoreText: {fileID: 1873737178}
-  player: {fileID: 974569026}
-  defaultSpawnPoint: {fileID: 734182874}
-  hubSceneName: Hub
-  stageId: Hub
-  totalItemsInStage: 5
-  registerAsUnlockedByDefault: 1
 --- !u!4 &371415255
 Transform:
   m_ObjectHideFlags: 0
@@ -2448,12 +2414,28 @@ Transform:
   m_GameObject: {fileID: 371415252}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.27578, y: 4.82592, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &371415256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 371415252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a49ebb7b8e29c184794d520e589e5cbc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HubGameManager
+  player: {fileID: 974569026}
+  defaultSpawnPoint: {fileID: 984230535}
+  hubCheckpoints:
+  - {fileID: 2015006477}
 --- !u!1 &398465854
 GameObject:
   m_ObjectHideFlags: 0
@@ -52067,16 +52049,71 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!1 &698703320 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3083130006001699609, guid: c97a867e4616bb64d9891071a7e0f63a, type: 3}
-  m_PrefabInstance: {fileID: 2111553200}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &734182874 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3125326719607532034, guid: f7bd88fa963bdb144987050d0f197648, type: 3}
-  m_PrefabInstance: {fileID: 1967473713}
-  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &730385386
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5790622199429163926, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_Name
+      value: Checkpoint
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 93.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6184534755679030982, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7209459966161326954, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: hubCheckpointId
+      value: Area1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7209459966161326954, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+      propertyPath: isHubCheckpoint
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
 --- !u!1 &756275025
 GameObject:
   m_ObjectHideFlags: 0
@@ -53348,7 +53385,7 @@ PrefabInstance:
     - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
       propertyPath: gameManager
       value: 
-      objectReference: {fileID: 371415254}
+      objectReference: {fileID: 0}
     - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
       propertyPath: oneWayLayer.m_Bits
       value: 1024
@@ -53417,6 +53454,11 @@ MonoBehaviour:
 Transform:
   m_CorrespondingSourceObject: {fileID: 665292375771832560, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
   m_PrefabInstance: {fileID: 974569025}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &984230535 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3125326719607532034, guid: f7bd88fa963bdb144987050d0f197648, type: 3}
+  m_PrefabInstance: {fileID: 1967473713}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1036936621
 GameObject:
@@ -55470,6 +55512,7 @@ MonoBehaviour:
     canWallSlide: 0
     canWallJump: 0
     canDoubleJump: 0
+  lastHubCheckpointId: 
   isArea2Unlocked: 0
   isArea3Unlocked: 0
   phase1UnlockRequiredFruit: 13
@@ -55977,17 +56020,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!114 &1873737178 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7443466709708347716, guid: c97a867e4616bb64d9891071a7e0f63a, type: 3}
-  m_PrefabInstance: {fileID: 2111553200}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &1888249942
 GameObject:
   m_ObjectHideFlags: 0
@@ -56158,11 +56190,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5712389697088011981, guid: f7bd88fa963bdb144987050d0f197648, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 72
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5712389697088011981, guid: f7bd88fa963bdb144987050d0f197648, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5712389697088011981, guid: f7bd88fa963bdb144987050d0f197648, type: 3}
       propertyPath: m_LocalPosition.z
@@ -56361,11 +56393,17 @@ Transform:
   - {fileID: 1166890060}
   m_Father: {fileID: 317588117}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1998608166 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3487693317740721361, guid: c97a867e4616bb64d9891071a7e0f63a, type: 3}
-  m_PrefabInstance: {fileID: 2111553200}
+--- !u!114 &2015006477 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7209459966161326954, guid: 88f0efd9ab6356f4f86ee37009179e9c, type: 3}
+  m_PrefabInstance: {fileID: 730385386}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89d1ebdb10d2e694a81143758636a6ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Checkpoint
 --- !u!1 &2054135676
 GameObject:
   m_ObjectHideFlags: 0
@@ -56563,3 +56601,4 @@ SceneRoots:
   - {fileID: 1611262819}
   - {fileID: 1291485349}
   - {fileID: 1407574209}
+  - {fileID: 730385386}

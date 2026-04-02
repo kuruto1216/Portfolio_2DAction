@@ -126,6 +126,15 @@ public class PlayerManager : MonoBehaviour
     private int playerLayer;
     private int oneWayGroundLayer;
 
+    // 完全停止壁用
+    [Header("完全停止壁Layer設定")]
+    [SerializeField] private LayerMask stickyWallLayer;
+    private bool isOnStickyWall;
+    private bool isOnLeftStickyWall;
+    private bool isOnRightStickyWall;
+
+    private IPlatformDelta currentStickyWallPlatform;
+
     // 移動ポータル用
     private PortalEntrance currentPortal;
 
@@ -225,6 +234,13 @@ public class PlayerManager : MonoBehaviour
         {
             rb.position += currentPlatform.Delta;
         }
+
+        if (currentState == PlayerState.WallSlide &&
+            isOnStickyWall &&
+            currentStickyWallPlatform != null)
+        {
+            rb.position += currentStickyWallPlatform.Delta;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -277,6 +293,7 @@ public class PlayerManager : MonoBehaviour
 
         bool isGW = IsInLayerMask(collision.gameObject, groundLayer)
                 || IsInLayerMask(collision.gameObject, wallLayer)
+                || IsInLayerMask(collision.gameObject, stickyWallLayer)
                 || collision.gameObject.GetComponentInParent<RockHeadMarker>() != null;
         if (!isGW) return;
 
@@ -296,6 +313,7 @@ public class PlayerManager : MonoBehaviour
             // RockHead以外のGround/Wallを"Other"として扱う
             bool otherIsGW = IsInLayerMask(other.gameObject, groundLayer)
                         || IsInLayerMask(other.gameObject, wallLayer)
+                        || IsInLayerMask(other.gameObject, stickyWallLayer)
                         || otherIsRock;
             bool otherIsOther = otherIsGW && !otherIsRock;
 
@@ -329,7 +347,13 @@ public class PlayerManager : MonoBehaviour
         }
 
         // ここまでで「この物理ステップ中に、どっち方向から押されたか」が溜まる
+        bool stickyCrushHorizontal =
+            isOnStickyWall &&
+            ((pressFromLeft_Rock && isOnRightStickyWall) ||
+            (pressFromRight_Rock && isOnLeftStickyWall));
+
         bool crushHorizontal =
+            stickyCrushHorizontal ||
             (pressFromLeft_Rock && pressFromRight_Other) ||
             (pressFromRight_Rock && pressFromLeft_Other);
 
@@ -584,10 +608,10 @@ public class PlayerManager : MonoBehaviour
         Jump();
     }
 
-    // 2段ジャンプ
+    // 空中ジャンプ(+2段)
     void AirJump()
     {
-        if (!canDoubleJump) return;     // 2段Jump能力解放判定
+        if (!canDoubleJump) return;
         if (jumpCount >= maxJumpCount) return;
 
         jumpCount++;
@@ -623,6 +647,12 @@ public class PlayerManager : MonoBehaviour
         jumpCount = 1;
 
         wallJumpControlLockTimer = wallJumpControlLockTime; // 操作ロックタイマーセット
+
+        // 完全停止壁からの壁ジャンプ時オールリセット
+        currentStickyWallPlatform = null;
+        isOnStickyWall = false;
+        isOnLeftStickyWall = false;
+        isOnRightStickyWall = false;
     }
 
     // ジャンプ処理本体
@@ -639,8 +669,14 @@ public class PlayerManager : MonoBehaviour
     {
         if (!isOnWall) return;
         if (isGrounded) return;
-
         if (rb.linearVelocity.y > 0) return;
+
+        // 完全停止壁時
+        if (isOnStickyWall)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+            return;
+        }
 
         // 落下速度制限
         if (rb.linearVelocity.y < -wallSlideSpeed)
@@ -709,6 +745,12 @@ public class PlayerManager : MonoBehaviour
         else
         {
             coyoteTimer = Mathf.Max(coyoteTimer - Time.deltaTime, 0f);
+
+            // 地面から落下時、通常ジャンプ使用済み扱い
+            if (coyoteTimer <= 0f && jumpCount == 0)
+            {
+                jumpCount = 1;
+            }
         }
 
         wasGrounded = isGrounded;
@@ -758,13 +800,36 @@ public class PlayerManager : MonoBehaviour
             isOnWall = false;
             isOnLeftWall = false;
             isOnRightWall = false;
+
+            isOnStickyWall = false;
+            isOnLeftStickyWall = false;
+            isOnRightStickyWall = false;
+
+            currentStickyWallPlatform = null;
+
             return;
         }
 
-        isOnLeftWall = CheckLeftWall();
-        isOnRightWall = CheckRightWall();
+        bool leftNormal = CheckLeftWall();
+        bool rightNormal = CheckRightWall();
 
+        IPlatformDelta leftStickyPlatform;
+        IPlatformDelta rightStickyPlatform;
+
+        isOnLeftStickyWall = CheckLeftStickyWall(out leftStickyPlatform);
+        isOnRightStickyWall = CheckRightStickyWall(out rightStickyPlatform);
+        isOnStickyWall = isOnLeftStickyWall || isOnRightStickyWall;
+
+        isOnLeftWall = leftNormal || isOnLeftStickyWall;
+        isOnRightWall = rightNormal || isOnRightStickyWall;
         isOnWall = isOnLeftWall || isOnRightWall;
+
+        currentStickyWallPlatform = leftStickyPlatform ?? rightStickyPlatform;
+
+        if (!isOnStickyWall)
+        {
+            currentStickyWallPlatform = null;
+        }
     }
 
     // 左壁判定
@@ -797,6 +862,55 @@ public class PlayerManager : MonoBehaviour
 
         return Physics2D.Linecast(upper, upperEnd, wallLayer)
             || Physics2D.Linecast(lower, lowerEnd, wallLayer);
+    }
+
+    // 左壁判定(完全停止壁)
+    bool CheckLeftStickyWall(out IPlatformDelta platform)
+    {
+        platform = null;
+
+        Vector3 upper = transform.position + Vector3.up * 1.0f;
+        Vector3 lower = transform.position + Vector3.up * 0.4f;
+
+        Vector3 upperEnd = upper - Vector3.right * 0.6f;
+        Vector3 lowerEnd = lower - Vector3.right * 0.6f;
+
+        RaycastHit2D hit1 = Physics2D.Linecast(upper, upperEnd, stickyWallLayer);
+        RaycastHit2D hit2 = Physics2D.Linecast(lower, lowerEnd, stickyWallLayer);
+
+        RaycastHit2D hit = hit1.collider != null ? hit1 : hit2;
+
+        if (hit.collider != null)
+        {
+            platform = hit.collider.GetComponentInParent<IPlatformDelta>();
+            return true;
+        }
+
+        return false;
+    }
+    // 右壁判定(完全停止壁)
+    bool CheckRightStickyWall(out IPlatformDelta platform)
+    {
+        platform = null;
+
+        Vector3 upper = transform.position + Vector3.up * 1.0f;
+        Vector3 lower = transform.position + Vector3.up * 0.4f;
+
+        Vector3 upperEnd = upper + Vector3.right * 0.6f;
+        Vector3 lowerEnd = lower + Vector3.right * 0.6f;
+
+        RaycastHit2D hit1 = Physics2D.Linecast(upper, upperEnd, stickyWallLayer);
+        RaycastHit2D hit2 = Physics2D.Linecast(lower, lowerEnd, stickyWallLayer);
+
+        RaycastHit2D hit = hit1.collider != null ? hit1 : hit2;
+
+        if (hit.collider != null)
+        {
+            platform = hit.collider.GetComponentInParent<IPlatformDelta>();
+            return true;
+        }
+
+        return false;
     }
 
     // ダッシュ管理
@@ -908,6 +1022,12 @@ public class PlayerManager : MonoBehaviour
         if (isGrounded)
         {
             rb.gravityScale = 2f; // 地面にいるときの重力
+            return;
+        }
+
+        if (currentState == PlayerState.WallSlide && isOnStickyWall)
+        {
+            rb.gravityScale = 0f;
             return;
         }
 

@@ -95,16 +95,6 @@ public class ThwompBase : MonoBehaviour
                 break;
 
             case ThwompState.Return:
-                Vector2 next = Vector2.MoveTowards(rb.position,
-                    (Vector2)startPos, returnSpeed * Time.fixedDeltaTime);
-                rb.MovePosition(next);
-
-                // “ž’B”»’è
-                if ((next - (Vector2)startPos).sqrMagnitude < 0.000001f)
-                {
-                    rb.MovePosition(startPos);
-                    ChangeState(ThwompState.Idle);
-                }
                 break;
         }
 
@@ -129,8 +119,19 @@ public class ThwompBase : MonoBehaviour
                 break;
 
             case ThwompState.Return:
-                Vector2 dir = (startPos - transform.position).normalized;
-                MoveStep(dir, returnSpeed);
+                Vector2 next = Vector2.MoveTowards(
+                    rb.position,
+                    (Vector2)startPos,
+                    returnSpeed * Time.fixedDeltaTime
+                );
+
+                rb.MovePosition(next);
+
+                if (((Vector2)startPos - next).sqrMagnitude < 0.000001f)
+                {
+                    rb.MovePosition(startPos);
+                    ChangeState(ThwompState.Idle);
+                }
                 break;
 
             default:

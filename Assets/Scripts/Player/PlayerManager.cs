@@ -135,6 +135,11 @@ public class PlayerManager : MonoBehaviour
 
     private IPlatformDelta currentStickyWallPlatform;
 
+    // Š®‘S’âŽ~•Ç—P—\ŽžŠÔ
+    [Header("Š®‘S’âŽ~•Ç—P—\ŽžŠÔ")]
+    [SerializeField] private float stickyWallGraceTime = 0.05f;
+    private float stickyWallGraceTimer;
+
     // ˆÚ“®ƒ|[ƒ^ƒ‹—p
     private PortalEntrance currentPortal;
 
@@ -232,14 +237,34 @@ public class PlayerManager : MonoBehaviour
         // ˆÚ“®°‚ÌˆÚ“®—Ê‚ð‰ÁŽZ
         if (isOnDeltaPlatform && currentPlatform != null)
         {
-            rb.position += currentPlatform.Delta;
+            Vector2 platformVelocity = currentPlatform.Delta / Time.fixedDeltaTime;
+            rb.linearVelocity += new Vector2(platformVelocity.x, 0f);
         }
 
-        if (currentState == PlayerState.WallSlide &&
+        if (!isGrounded &&
             isOnStickyWall &&
             currentStickyWallPlatform != null)
         {
-            rb.position += currentStickyWallPlatform.Delta;
+            Vector2 stickyWallVelocity = currentStickyWallPlatform.Delta / Time.fixedDeltaTime;
+            Vector2 v = rb.linearVelocity;
+
+            bool pressingAway = IsPressingAwayFromStickyWall();
+
+            // •Ç‚©‚ç—£‚ê‚é“ü—Í’†‚Å‚È‚¯‚ê‚ÎA‰¡’Ç]‚ð‹–‰Â
+            if (!pressingAway && Mathf.Abs(stickyWallVelocity.x) > 0.01f)
+            {
+                v.x = stickyWallVelocity.x;
+            }
+
+            // ã•ûŒü’Ç]‚ÍA•Ç’£‚è•t‚«’†‚¾‚¯‚ÉŒÀ’è
+            if (!pressingAway &&
+                currentState == PlayerState.WallSlide &&
+                stickyWallVelocity.y > 0.01f)
+            {
+                v.y = stickyWallVelocity.y;
+            }
+
+            rb.linearVelocity = v;
         }
     }
 
@@ -497,7 +522,9 @@ public class PlayerManager : MonoBehaviour
             return;
         }
 
-        if (canWallSlide && isOnWall && rb.linearVelocity.y <= 0f)
+        if (canWallSlide &&
+            isOnWall &&
+            (rb.linearVelocity.y <= 0f || (isOnStickyWall && IsStickyWallMovingUp())))
         {
             ChangeState(PlayerState.WallSlide);
             return;
@@ -806,6 +833,7 @@ public class PlayerManager : MonoBehaviour
             isOnRightStickyWall = false;
 
             currentStickyWallPlatform = null;
+            stickyWallGraceTimer = 0f;
 
             return;
         }
@@ -816,15 +844,35 @@ public class PlayerManager : MonoBehaviour
         IPlatformDelta leftStickyPlatform;
         IPlatformDelta rightStickyPlatform;
 
-        isOnLeftStickyWall = CheckLeftStickyWall(out leftStickyPlatform);
-        isOnRightStickyWall = CheckRightStickyWall(out rightStickyPlatform);
-        isOnStickyWall = isOnLeftStickyWall || isOnRightStickyWall;
+        bool leftStickyNow = CheckLeftStickyWall(out leftStickyPlatform);
+        bool rightStickyNow = CheckRightStickyWall(out rightStickyPlatform);
+
+        if (leftStickyNow || rightStickyNow)
+        {
+            stickyWallGraceTimer = stickyWallGraceTime;
+
+            isOnLeftStickyWall = leftStickyNow;
+            isOnRightStickyWall = rightStickyNow;
+            isOnStickyWall = true;
+
+            currentStickyWallPlatform = leftStickyPlatform ?? rightStickyPlatform;
+        }
+        else
+        {
+            stickyWallGraceTimer -= Time.deltaTime;
+
+            if (stickyWallGraceTimer <= 0f)
+            {
+                isOnLeftStickyWall = false;
+                isOnRightStickyWall = false;
+                isOnStickyWall = false;
+                currentStickyWallPlatform = null;
+            }
+        }
 
         isOnLeftWall = leftNormal || isOnLeftStickyWall;
         isOnRightWall = rightNormal || isOnRightStickyWall;
         isOnWall = isOnLeftWall || isOnRightWall;
-
-        currentStickyWallPlatform = leftStickyPlatform ?? rightStickyPlatform;
 
         if (!isOnStickyWall)
         {
@@ -938,6 +986,15 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    // StickyWallã¸Žž”»’è
+    bool IsStickyWallMovingUp()
+    {
+        if (currentStickyWallPlatform == null) return false;
+
+        Vector2 stickyWallVelocity = currentStickyWallPlatform.Delta / Time.fixedDeltaTime;
+        return stickyWallVelocity.y > 0.01f;
+    }
+
     // ---ƒ†[ƒeƒBƒŠƒeƒBƒƒ\ƒbƒhŒQ---
 
     static bool IsInLayerMask(GameObject obj, LayerMask mask)
@@ -962,6 +1019,8 @@ public class PlayerManager : MonoBehaviour
     void UpdateFacing()
     {
         if (isFacingLocked) return;
+
+        if (isOnStickyWall && currentState == PlayerState.WallSlide) return;
 
         if (move > 0.01f && !isFacingRight)
         {
@@ -992,6 +1051,14 @@ public class PlayerManager : MonoBehaviour
         Vector3 scale = visual.localScale;
         scale.x *= -1;
         visual.localScale = scale;
+    }
+
+    // •Ç‚Æ‚Ì‹t•ûŒü“ü—Í”»’è
+    bool IsPressingAwayFromStickyWall()
+    {
+        if (isOnLeftStickyWall && move > 0.01f) return true;
+        if (isOnRightStickyWall && move < -0.01f) return true;
+        return false;
     }
 
     // ---“ÁŽêˆ—ƒƒ\ƒbƒhŒQ---

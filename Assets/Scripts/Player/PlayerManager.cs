@@ -232,6 +232,7 @@ public class PlayerManager : MonoBehaviour
             TryJump();              // ジャンプ入力時処理
             ApplyJumpCut();         // 可変ジャンプ調整
             ApplyDynamicGravity();  // 動的重力調整
+            ApplyGroundStick();    // 地面への吸着
         }
 
         // 移動床の移動量を加算
@@ -332,8 +333,6 @@ public class PlayerManager : MonoBehaviour
             if (other == null) continue;
 
             bool otherIsRock = IsRockHead(other);
-
-            //Debug.Log($"self={self.name} other={other.name} n={cp.normal}");
 
             // RockHead以外のGround/Wallを"Other"として扱う
             bool otherIsGW = IsInLayerMask(other.gameObject, groundLayer)
@@ -749,24 +748,23 @@ public class PlayerManager : MonoBehaviour
     // 地面状態更新
     void UpdateGroundState()
     {
-        // ジャンプ直後の地面判定回避のため、groundIgnoreTimer中は強制的にisGrounded = false;
-        if (groundIgnoreTimer > 0)
+        bool rawGrounded = IsGrounded();
+
+        // ジャンプ直後の接地無視は、上昇中のみ有効
+        if (groundIgnoreTimer > 0f && rb.linearVelocity.y > 0.05f)
         {
             groundIgnoreTimer -= Time.deltaTime;
             isGrounded = false;
         }
         else
         {
-            isGrounded = IsGrounded();
-        }
-
-        if (isGrounded && !wasGrounded)
-        {
-            jumpCount = 0;
+            groundIgnoreTimer = 0f;
+            isGrounded = rawGrounded;
         }
 
         if (isGrounded)
         {
+            jumpCount = 0;
             coyoteTimer = coyoteTime;
         }
         else
@@ -776,6 +774,7 @@ public class PlayerManager : MonoBehaviour
             // 地面から落下時、通常ジャンプ使用済み扱い
             if (coyoteTimer <= 0f && jumpCount == 0)
             {
+                //Debug.Log("Coyote Time Expired");
                 jumpCount = 1;
             }
         }
@@ -797,8 +796,8 @@ public class PlayerManager : MonoBehaviour
             groundMask = groundLayer | oneWayLayer;
         }
 
-        Vector3 leftStartPoint = transform.position - Vector3.right * 0.3f;
-        Vector3 rightStartPoint = transform.position + Vector3.right * 0.3f;
+        Vector3 leftStartPoint = transform.position - Vector3.right * 0.3f + Vector3.up * 0.05f;
+        Vector3 rightStartPoint = transform.position + Vector3.right * 0.3f + Vector3.up * 0.05f;
         Vector3 endPoint = transform.position - Vector3.up * 0.1f;
 
         Debug.DrawLine(leftStartPoint, endPoint, Color.yellow);
@@ -1122,6 +1121,18 @@ public class PlayerManager : MonoBehaviour
                 rb.linearVelocity.y * jumpCutMultiplier
             );
         }
+    }
+
+    // 横ずれ防止処理
+    void ApplyGroundStick()
+    {
+        if (!isGrounded) return;
+        if (isDashing) return;
+        if (Mathf.Abs(move) > 0.01f) return;
+        if (rb.linearVelocity.y > 0.05f) return;
+        if (currentState == PlayerState.WallSlide) return;
+
+        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
     }
 
     // すり抜け処理

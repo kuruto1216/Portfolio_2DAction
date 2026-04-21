@@ -33019,7 +33019,7 @@ PrefabInstance:
       objectReference: {fileID: 1639222684}
     - target: {fileID: 145706987361325325, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
       propertyPath: canDoubleJump
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 665292375771832560, guid: fe03d7c62972330479976d6ae2410b4a, type: 3}
       propertyPath: m_LocalPosition.x

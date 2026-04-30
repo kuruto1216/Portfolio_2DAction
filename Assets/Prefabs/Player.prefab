@@ -148,8 +148,10 @@ MonoBehaviour:
     m_Bits: 1024
   dropThroughTime: 0.35
   oneWayLayerName: OneWay
-  bodyCollider: {fileID: 2952476009069852332}
-  oneWayReEnableOffset: 0.02
+  stickyWallLayer:
+    serializedVersion: 2
+    m_Bits: 2048
+  stickyWallGraceTime: 0.05
   crushNormalThreshold: 0.6
   cameraLook: {fileID: 0}
 --- !u!114 &4901978664224116837

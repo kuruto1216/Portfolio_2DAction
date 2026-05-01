@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 public class ProgressManager : MonoBehaviour
 {
@@ -43,6 +44,21 @@ public class ProgressManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         RebuildDictionary();
+    }
+
+    private void Update()
+    {
+        if (Keyboard.current != null && Keyboard.current.f5Key.wasPressedThisFrame)
+        {
+            Debug.Log("F5âüÇ≥ÇÍÇΩ");
+            ProgressManager.Instance?.SaveGame();
+        }
+
+        if (Keyboard.current != null && Keyboard.current.f9Key.wasPressedThisFrame)
+        {
+            Debug.Log("F9âüÇ≥ÇÍÇΩ");
+            ProgressManager.Instance?.LoadGame();
+        }
     }
 
     private void RebuildDictionary()
@@ -217,5 +233,139 @@ public class ProgressManager : MonoBehaviour
     public void ClearLastHubCheckpoint()
     {
         lastHubCheckpointId = "";
+    }
+
+    public void AddDeath(string stageId)
+    {
+        if (string.IsNullOrEmpty(stageId)) return;
+
+        if (!stageProgressMap.TryGetValue(stageId, out var data))
+        {
+            return;
+        }
+
+        data.deathCount++;
+    }
+
+    public int GetTotalDeathCount()
+    {
+        int total = 0;
+
+        foreach (var data in stageProgressList)
+        {
+            if (data == null) continue;
+            total += data.deathCount;
+        }
+
+        return total;
+    }
+
+    public SaveData CreateSaveData()
+    {
+        SaveData saveData = new SaveData();
+
+        saveData.totalFruit = GetTotalCollectedCount();
+        saveData.totalDeaths = GetTotalDeathCount();
+
+        saveData.lastHubCheckpointId = lastHubCheckpointId;
+
+        saveData.dashUnlocked = abilities.canDash;
+        saveData.wallJumpUnlocked = abilities.canWallJump;
+        saveData.doubleJumpUnlocked = abilities.canDoubleJump;
+
+        saveData.stages.Clear();
+
+        foreach (var stage in stageProgressList)
+        {
+            if (stage == null) continue;
+
+            StageSaveData stageSaveData = new StageSaveData();
+
+            stageSaveData.stageId = stage.stageId;
+            stageSaveData.bestFruitCount = stage.bestCollectedCount;
+            stageSaveData.totalFruitCount = stage.totalItemCount;
+            stageSaveData.deathCount = stage.deathCount;
+            stageSaveData.isCleared = stage.bestCollectedCount > 0;
+
+            saveData.stages.Add(stageSaveData);
+        }
+
+        saveData.activatedHubCheckpointIds.Clear();
+
+        foreach (string id in activatedHubCheckpointIds)
+        {
+            saveData.activatedHubCheckpointIds.Add(id);
+        }
+
+        return saveData;
+    }
+
+    public void LoadFromSaveData(SaveData saveData)
+    {
+        if (saveData == null) return;
+
+        lastHubCheckpointId = saveData.lastHubCheckpointId;
+
+        abilities.canDash = saveData.dashUnlocked;
+        abilities.canWallJump = saveData.wallJumpUnlocked;
+        abilities.canWallSlide = saveData.wallJumpUnlocked;
+        abilities.canDoubleJump = saveData.doubleJumpUnlocked;
+
+        stageProgressList.Clear();
+        stageProgressMap.Clear();
+
+        foreach (var stageSave in saveData.stages)
+        {
+            if (stageSave == null || string.IsNullOrEmpty(stageSave.stageId)) continue;
+
+            StageProgressData progressData =
+                new StageProgressData(stageSave.stageId, stageSave.totalFruitCount, true);
+
+            progressData.bestCollectedCount = stageSave.bestFruitCount;
+            progressData.deathCount = stageSave.deathCount;
+
+            stageProgressList.Add(progressData);
+            stageProgressMap.Add(progressData.stageId, progressData);
+        }
+
+        activatedHubCheckpointIds.Clear();
+
+        foreach (string id in saveData.activatedHubCheckpointIds)
+        {
+            if (string.IsNullOrEmpty(id)) continue;
+            activatedHubCheckpointIds.Add(id);
+        }
+
+        EvaluateUnlocks();
+    }
+
+    public void SaveGame()
+    {
+        SaveData saveData = CreateSaveData();
+        SaveManager.Save(saveData);
+        Debug.Log("ÉQÅ[ÉÄÇï€ë∂ÇµÇ‹ÇµÇΩ");
+    }
+
+    public void LoadGame()
+    {
+        SaveData saveData = SaveManager.Load();
+
+        if (saveData == null) return;
+
+        LoadFromSaveData(saveData);
+    }
+
+    public void ResetProgress()
+    {
+        stageProgressList.Clear();
+        stageProgressMap.Clear();
+
+        abilities = new PlayerAbilityData();
+
+        lastHubCheckpointId = "";
+        activatedHubCheckpointIds.Clear();
+
+        isArea2Unlocked = false;
+        isArea3Unlocked = false;
     }
 }

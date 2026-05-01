@@ -29,7 +29,7 @@ public class Checkpoint : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void OnEnable()
     {
         RestoreHubCheckpointVisual();
     }
@@ -43,6 +43,9 @@ public class Checkpoint : MonoBehaviour
         if (ProgressManager.Instance.IsHubCheckpointActivated(hubCheckpointId))
         {
             activated = true;
+
+            animator.SetBool("IsActivated", true);
+
             animator.Play("FlagIdleAnimation", 0, 0f);
         }
     }
@@ -77,7 +80,7 @@ public class Checkpoint : MonoBehaviour
 
         if (animator != null)
         {
-            animator.SetTrigger("Raise");
+            animator.SetBool("IsActivated", true);
         }
     }
 }

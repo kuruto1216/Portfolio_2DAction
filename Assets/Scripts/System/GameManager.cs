@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
 
     private int committedCollectedCount = 0;
     private int tempCollectedCount = 0;
+    private bool isGameOver = false;
 
     private readonly List<ItemManager> tempCollectedItems = new();
     private readonly List<ItemManager> committedCollectedItems = new();
@@ -39,7 +40,7 @@ public class GameManager : MonoBehaviour
             player.ApplyAbilities(ProgressManager.Instance.Abilities);
         }
     }
-    
+
     public void CollectItem(ItemManager item)
     {
         if (item == null) return;
@@ -106,6 +107,14 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
+        if (isGameOver) return;
+        isGameOver = true;
+
+        if (ProgressManager.Instance != null)
+        {
+            ProgressManager.Instance.AddDeath(stageId);
+        }
+
         gameOverText.SetActive(true);
         Invoke(nameof(Respawn), 1.5f);
     }
@@ -117,6 +126,8 @@ public class GameManager : MonoBehaviour
         if (ProgressManager.Instance != null)
         {
             ProgressManager.Instance.SaveStageResult(stageId, committedCollectedCount, totalItemsInStage);
+
+            ProgressManager.Instance.SaveGame();
         }
 
         gameClearText.SetActive(true);
@@ -136,6 +147,8 @@ public class GameManager : MonoBehaviour
         }
 
         player.RespawnTo(spawnPos);
+
+        isGameOver = false;
     }
 
     private void GoToHub()

@@ -29,7 +29,7 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] private bool canDoubleJump = true;
     [SerializeField] private bool canWallJump = true;
     [SerializeField] private bool canWallSlide = true;
-    [SerializeField] private bool canDash = true;  // ƒ_ƒbƒVƒ…ŽÀ‘•—\’è
+    [SerializeField] private bool canDash = true;
 
     // ”\—Í‰ð•ú(ŽÀ‘•—\’è)
     private void SetDashEnabled(bool enabled) => canDash = enabled;

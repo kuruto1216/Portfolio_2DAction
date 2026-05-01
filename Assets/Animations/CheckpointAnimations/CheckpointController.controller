@@ -63,8 +63,8 @@ AnimatorController:
   m_Name: CheckpointController
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: Raise
-    m_Type: 9
+  - m_Name: IsActivated
+    m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
@@ -141,7 +141,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: Raise
+    m_ConditionEvent: IsActivated
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -4138846974325504448}

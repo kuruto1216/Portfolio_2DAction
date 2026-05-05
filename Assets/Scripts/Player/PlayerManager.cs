@@ -153,6 +153,27 @@ public class PlayerManager : MonoBehaviour
     private bool pressFromLeft_Rock, pressFromRight_Rock, pressFromUp_Rock, pressFromDown_Rock;
     private bool pressFromLeft_Other, pressFromRight_Other, pressFromUp_Other, pressFromDown_Other;
 
+    // エフェクト用変数
+    [Header("エフェクト用設定")]
+    [SerializeField] private GameObject jumpDustPrefab;
+    [SerializeField] private GameObject landingDustPrefab;
+    [SerializeField] private GameObject runDustPrefab;
+    [SerializeField] private GameObject dashDustPrefab;
+    [SerializeField] private GameObject wallSlideDustPrefab;
+    [SerializeField] private GameObject wallJumpDustPrefab;
+    [SerializeField] private Transform dustSpawnPoint;
+    [SerializeField] private Transform dashDustPoint;
+    [SerializeField] private Transform wallDustLeftPoint;
+    [SerializeField] private Transform wallDustRightPoint;
+    [SerializeField] private Transform wallJumpDustLeftPoint;
+    [SerializeField] private Transform wallJumpDustRightPoint;
+
+    [SerializeField] private float runDustInterval = 0.12f;
+    private float runDustTimer;
+
+    private GameObject currentDashDust;
+    private GameObject currentWallSlideDust;
+
     // カメラ覗き込み用変数
     [Header("カメラ用設定")]
     [SerializeField] private CameraLookController cameraLook;
@@ -191,6 +212,9 @@ public class PlayerManager : MonoBehaviour
         UpdateFacingLock();
         UpdateFacing();
         UpdateAnimator();
+        HandleRunDust();
+        HandleDashDust();
+        HandleWallSlideDust();
     }
 
     private void FixedUpdate()
@@ -674,6 +698,8 @@ public class PlayerManager : MonoBehaviour
 
         wallJumpControlLockTimer = wallJumpControlLockTime; // 操作ロックタイマーセット
 
+        SpawnWallJumpDust();
+
         // 完全停止壁からの壁ジャンプ時オールリセット
         currentStickyWallPlatform = null;
         isOnStickyWall = false;
@@ -688,6 +714,8 @@ public class PlayerManager : MonoBehaviour
 
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
         rb.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
+
+        SpawnJumpDust();
     }
 
     // 壁張り付き処理
@@ -777,6 +805,13 @@ public class PlayerManager : MonoBehaviour
                 //Debug.Log("Coyote Time Expired");
                 jumpCount = 1;
             }
+        }
+
+        bool landedThisFrame = !wasGrounded && isGrounded;
+
+        if (landedThisFrame)
+        {
+            SpawnLandingDust();
         }
 
         wasGrounded = isGrounded;
@@ -1058,6 +1093,140 @@ public class PlayerManager : MonoBehaviour
         if (isOnLeftStickyWall && move > 0.01f) return true;
         if (isOnRightStickyWall && move < -0.01f) return true;
         return false;
+    }
+
+    // ---エフェクト関連メソッド群---
+
+    // ジャンプエフェクト生成
+    void SpawnJumpDust()
+    {
+        if (jumpDustPrefab == null || dustSpawnPoint == null) return;
+
+        Instantiate(jumpDustPrefab, dustSpawnPoint.position, Quaternion.identity);
+    }
+
+    // 着地エフェクト生成
+    void SpawnLandingDust()
+    {
+        if (landingDustPrefab == null || dustSpawnPoint == null) return;
+
+        Instantiate(landingDustPrefab, dustSpawnPoint.position, Quaternion.identity);
+    }
+
+    // 走行エフェクト生成
+    void SpawnRunDust()
+    {
+        if (runDustPrefab == null || dustSpawnPoint == null) return;
+
+        Instantiate(runDustPrefab, dustSpawnPoint.position, Quaternion.identity);
+    }
+
+    // 壁ジャンプエフェクト生成
+    void SpawnWallJumpDust()
+    {
+        if (wallJumpDustPrefab == null) return;
+
+        Transform spawnPoint = isOnLeftWall ? wallJumpDustLeftPoint : wallJumpDustRightPoint;
+
+        if (spawnPoint == null) return;
+
+        Instantiate(wallJumpDustPrefab, spawnPoint.position, Quaternion.identity);
+    }
+
+    // 走行エフェクト管理
+    void HandleRunDust()
+    {
+        bool shouldSpawnRunDust =
+            isGrounded &&
+            Mathf.Abs(move) > 0.1f &&
+            currentState == PlayerState.Run &&
+            !isDashing;
+
+        if (!shouldSpawnRunDust)
+        {
+            runDustTimer = 0f;
+            return;
+        }
+
+        runDustTimer -= Time.deltaTime;
+
+        if (runDustTimer <= 0f)
+        {
+            SpawnRunDust();
+            runDustTimer = runDustInterval;
+        }
+    }
+
+    // ダッシュエフェクト管理
+    void HandleDashDust()
+    {
+        if (isDashing)
+        {
+            if (currentDashDust == null)
+            {
+                Quaternion rot = dashDir > 0
+                    ? Quaternion.identity
+                    : Quaternion.Euler(0f, 180f, 0f);
+
+                currentDashDust = Instantiate(
+                    dashDustPrefab,
+                    dashDustPoint.position,
+                    rot,
+                    transform
+                );
+            }
+        }
+        else
+        {
+            if (currentDashDust != null)
+            {
+                Destroy(currentDashDust);
+                currentDashDust = null;
+            }
+        }
+    }
+
+    // 壁滑りエフェクト生成及び管理
+    void HandleWallSlideDust()
+    {
+        bool shouldWallSlideDust =
+        currentState == PlayerState.WallSlide &&
+        isOnWall &&
+        !isGrounded &&
+        !isDashing;
+
+        if (shouldWallSlideDust)
+        {
+            Transform spawnPoint = isOnLeftWall ? wallDustLeftPoint : wallDustRightPoint;
+            if (wallSlideDustPrefab == null || spawnPoint == null) return;
+
+            if (currentWallSlideDust == null)
+            {
+                currentWallSlideDust = Instantiate(
+                    wallSlideDustPrefab,
+                    spawnPoint.position,
+                    Quaternion.identity,
+                    transform
+                );
+            }
+
+            currentWallSlideDust.transform.position = spawnPoint.position;
+        }
+        else
+        {
+            if (currentWallSlideDust != null)
+            {
+                var ps = currentWallSlideDust.GetComponent<ParticleSystem>();
+
+                if (ps != null)
+                {
+                    ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                }
+
+                Destroy(currentWallSlideDust, 0.3f);
+                currentWallSlideDust = null;
+            }
+        }
     }
 
     // ---特殊処理メソッド群---

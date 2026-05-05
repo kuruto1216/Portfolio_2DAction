@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class TitleManager : MonoBehaviour
 {
@@ -10,6 +13,9 @@ public class TitleManager : MonoBehaviour
     [Header("Scene")]
     [SerializeField] private string hubSceneName = "Hub";
 
+    [Header("First Selected")]
+    [SerializeField] private GameObject firstSelectedButton;
+
     private void Start()
     {
         // ContinueÉ{É^ÉìÇÃóLñ≥êÿÇËë÷Ç¶
@@ -17,6 +23,45 @@ public class TitleManager : MonoBehaviour
         {
             continueButton.interactable = SaveManager.HasSaveData();
         }
+
+        SelectFirstButton();
+    }
+
+    private void Update()
+    {
+        if (EventSystem.current == null) return;
+        if (EventSystem.current.currentSelectedGameObject != null) return;
+
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.upArrowKey.wasPressedThisFrame ||
+                Keyboard.current.downArrowKey.wasPressedThisFrame ||
+                Keyboard.current.wKey.wasPressedThisFrame ||
+                Keyboard.current.sKey.wasPressedThisFrame)
+            {
+                SelectFirstButton();
+            }
+        }
+
+        if (Gamepad.current != null)
+        {
+            if (Gamepad.current.dpad.up.wasPressedThisFrame ||
+                Gamepad.current.dpad.down.wasPressedThisFrame ||
+                Gamepad.current.leftStick.up.wasPressedThisFrame ||
+                Gamepad.current.leftStick.down.wasPressedThisFrame)
+            {
+                SelectFirstButton();
+            }
+        }
+    }
+
+    private void SelectFirstButton()
+    {
+        if (EventSystem.current == null) return;
+        if (firstSelectedButton == null) return;
+
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(firstSelectedButton);
     }
 
     public void OnNewGame()

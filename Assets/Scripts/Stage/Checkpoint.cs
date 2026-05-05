@@ -59,6 +59,9 @@ public class Checkpoint : MonoBehaviour
             if (ProgressManager.Instance != null)
             {
                 ProgressManager.Instance.ActivateHubCheckpoint(hubCheckpointId);
+
+                // Hub内のチェックポイント通過時にAutoSaveする
+                ProgressManager.Instance.SaveGame();
             }
         }
         else

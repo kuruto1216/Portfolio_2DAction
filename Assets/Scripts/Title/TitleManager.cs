@@ -73,7 +73,7 @@ public class TitleManager : MonoBehaviour
             ProgressManager.Instance.ResetProgress();
         }
 
-        SceneManager.LoadScene(hubSceneName);
+        TransitionManager.Instance.LoadScene(hubSceneName);
     }
 
     public void OnContinue()
@@ -85,7 +85,7 @@ public class TitleManager : MonoBehaviour
             ProgressManager.Instance.LoadGame();
         }
 
-        SceneManager.LoadScene(hubSceneName);
+        TransitionManager.Instance.LoadScene(hubSceneName);
     }
 
     public void OnQuit()

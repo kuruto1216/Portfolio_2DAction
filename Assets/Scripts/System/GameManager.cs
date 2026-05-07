@@ -153,7 +153,7 @@ public class GameManager : MonoBehaviour
 
     private void GoToHub()
     {
-        SceneManager.LoadScene(hubSceneName);
+        TransitionManager.Instance.LoadScene(hubSceneName);
     }
 
     private void ClampCounts()

@@ -510,7 +510,7 @@ public class PlayerManager : MonoBehaviour
         if (currentPortal != null)
         {
             DisablePlayerControl();
-            SceneManager.LoadScene(currentPortal.SceneName);
+            TransitionManager.Instance.LoadScene(currentPortal.SceneName);
         }
     }
 

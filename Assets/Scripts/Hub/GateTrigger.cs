@@ -124,7 +124,7 @@ public class GateTrigger : MonoBehaviour
             }
             else if (CanUnlock())
             {
-                actionText.text = "E‚Å‰ğ•ú";
+                actionText.text = "[E] / [L Stick ª]";
             }
             else
             {

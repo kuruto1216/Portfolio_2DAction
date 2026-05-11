@@ -146,6 +146,11 @@ public class PlayerManager : MonoBehaviour
     // 解放ゲート用
     private GateTrigger currentGate;
 
+    // Arrowギミック用
+    [Header("Arrow用設定")]
+    [SerializeField] private float arrowControlLockTime = 0.15f;
+    private float arrowControlLockTimer;
+
     // 圧死判定用
     [Header("圧死判定設定")]
     [SerializeField] private float crushNormalThreshold = 0.6f;
@@ -229,7 +234,11 @@ public class PlayerManager : MonoBehaviour
         // 横移動処理（壁ジャンプ中は操作ロック）
         if (!isDashing)
         {
-            if (wallJumpControlLockTimer > 0)
+            if (arrowControlLockTimer > 0f)
+            {
+                arrowControlLockTimer -= Time.fixedDeltaTime;
+            }
+            else if (wallJumpControlLockTimer > 0f)
             {
                 wallJumpControlLockTimer -= Time.fixedDeltaTime;
             }
@@ -1449,5 +1458,28 @@ public class PlayerManager : MonoBehaviour
         {
             currentGate = null;
         }
+    }
+
+    // Arrowギミック用メソッド
+    public void ApplyArrowBoost(Vector2 velocity)
+    {
+        if (!canControl) return;
+        if (currentState == PlayerState.Dead) return;
+
+        // ダッシュ中なら解除
+        isDashing = false;
+        dashTimer = 0f;
+
+        wallJumpControlLockTimer = 0f;
+        jumpBufferCounter = 0;
+        jumpReleased = false;
+
+        rb.linearVelocity = velocity;
+
+        arrowControlLockTimer = arrowControlLockTime; // 操作ロックタイマーセット
+        groundIgnoreTimer = groundIgnoreTime;
+
+        jumpCount = 1;       // 2段ジャンプ使用済み時、ジャンプ回数を1にリセット
+        airDashUsed = false; // 空中ダッシュ回数リセット
     }
 }

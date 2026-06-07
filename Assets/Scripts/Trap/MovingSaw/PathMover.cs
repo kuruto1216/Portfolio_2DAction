@@ -9,10 +9,20 @@ public class PathMover : MonoBehaviour
     [SerializeField] private float speed = 2f;
     [SerializeField] private bool loop = true;
 
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private float animatorSpeed = 1f;
+
+
     private int currentIndex = 0;
 
     private void Start()
     {
+        if (animator != null)
+        {
+            animator.speed = animatorSpeed;
+        }
+
         if (points == null || points.Length < 2) return;
 
         transform.position = points[0].position;

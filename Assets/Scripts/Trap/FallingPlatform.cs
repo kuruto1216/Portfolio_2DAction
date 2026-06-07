@@ -25,12 +25,16 @@ public class FallingPlatform : MonoBehaviour
 
     // ===== コンポーネント =====
     private Animator animator;
+    private SpriteRenderer spriteRenderer;
+    private Collider2D col;
 
 
     // ===== Unityイベント =====
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        col = GetComponent<Collider2D>();
     }
 
     private void Start()
@@ -92,8 +96,47 @@ public class FallingPlatform : MonoBehaviour
             .SetLink(gameObject)
             .OnComplete(() => 
             {
+                HidePlatform();
                 Invoke(nameof(Respawn), respawnDelay);
             });
+    }
+
+    // 隠す処理
+    private void HidePlatform()
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = false;
+        }
+
+        if (col != null)
+        {
+            col.enabled = false;
+        }
+
+        if ( animator != null)
+        {
+            animator.enabled = false;
+        }
+    }
+
+    // 表示処理
+    private void ShowPlatform()
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = true;
+        }
+
+        if (col != null)
+        {
+            col.enabled = true;
+        }
+
+        if (animator != null)
+        {
+            animator.enabled = true;
+        }
     }
 
     // 再出現処理
@@ -104,7 +147,8 @@ public class FallingPlatform : MonoBehaviour
 
         transform.position = startPos;
 
-        animator.enabled = true; // アニメーションを再開
+        ShowPlatform();
+
         isFalling = false;
 
         StartFloatTween();

@@ -21,6 +21,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int totalItemsInStage = 5;
     [SerializeField] private bool registerAsUnlockedByDefault = true;
 
+    [Header("Clear")]
+    [SerializeField] private string nextSceneName = "Hub";
+
     private int committedCollectedCount = 0;
     private int tempCollectedCount = 0;
     private bool isGameOver = false;
@@ -131,7 +134,7 @@ public class GameManager : MonoBehaviour
         }
 
         gameClearText.SetActive(true);
-        Invoke(nameof(GoToHub), 1.5f);
+        Invoke(nameof(GoToNextScene), 1.5f);
     }
 
     private void Respawn()
@@ -151,9 +154,9 @@ public class GameManager : MonoBehaviour
         isGameOver = false;
     }
 
-    private void GoToHub()
+    private void GoToNextScene()
     {
-        TransitionManager.Instance.LoadScene(hubSceneName);
+        TransitionManager.Instance.LoadScene(nextSceneName);
     }
 
     private void ClampCounts()

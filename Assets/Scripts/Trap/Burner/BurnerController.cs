@@ -4,6 +4,9 @@ using Unity.Collections.LowLevel.Unsafe;
 
 public class BurnerController : MonoBehaviour
 {
+    [Header("動作モード")]
+    [SerializeField] private bool alwaysOn = false; // trueなら常時点火
+
     [Header("時間設定（秒）")]
     [SerializeField] private float onTime = 1.5f; // 点灯時間
     [SerializeField] private float offTime = 1.5f; // 消灯時間
@@ -17,6 +20,7 @@ public class BurnerController : MonoBehaviour
     [SerializeField] private string animParamIsOn = "IsOn";
 
     private Coroutine _timerCo;
+    private Coroutine _startCo;
 
     private void Reset()
     {
@@ -26,16 +30,25 @@ public class BurnerController : MonoBehaviour
 
     private void OnEnable()
     {
+        if (_timerCo != null) StopCoroutine(_timerCo);
+        if (_startCo != null) StopCoroutine(_startCo);
+
+        _timerCo = null;
+        _startCo = null;
+
         hitTrigger.enabled = false;
         SetOn(false);
 
-        StartCoroutine(StartAfterDelay());  // 開始前の遅延を考慮して処理開始
+        _startCo = StartCoroutine(StartAfterDelay());  // 開始前の遅延を考慮して処理開始
     }
 
     private void OnDisable()
     {
         if (_timerCo != null) StopCoroutine(_timerCo);
+        if (_startCo != null) StopCoroutine(_startCo);
+
         _timerCo = null;
+        _startCo = null;
     }
 
     //　遅延用のコルーチン
@@ -60,6 +73,8 @@ public class BurnerController : MonoBehaviour
     {
         hitTrigger.enabled = true;
 
+        if (alwaysOn) return;
+
         if (_timerCo != null) StopCoroutine(_timerCo);
         _timerCo = StartCoroutine(OnDuration());
     }
@@ -76,6 +91,8 @@ public class BurnerController : MonoBehaviour
     public void DisableHit()
     {
         hitTrigger.enabled = false;
+
+        if (alwaysOn) return;
 
         if (_timerCo != null) StopCoroutine(_timerCo);
         _timerCo = StartCoroutine(OffDuration());

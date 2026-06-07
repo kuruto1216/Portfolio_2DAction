@@ -247,6 +247,20 @@ public class ProgressManager : MonoBehaviour
         data.deathCount++;
     }
 
+    public int GetTotalFruitCount()
+    {
+        int total = 0;
+
+        foreach (var stage in stageProgressList)
+        {
+            if (stage == null) continue;
+
+            total += stage.totalItemCount;
+        }
+
+        return total;
+    }
+
     public int GetTotalDeathCount()
     {
         int total = 0;

@@ -794,6 +794,7 @@ MonoBehaviour:
   stageId: 1-1
   totalItemsInStage: 3
   registerAsUnlockedByDefault: 1
+  nextSceneName: Hub
 --- !u!4 &371415255
 Transform:
   m_ObjectHideFlags: 0
@@ -28456,11 +28457,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3592643558096574628, guid: 2d2f700b0202a494ea6ef7179bd44601, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 60.55484
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3592643558096574628, guid: 2d2f700b0202a494ea6ef7179bd44601, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 72.40301
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3592643558096574628, guid: 2d2f700b0202a494ea6ef7179bd44601, type: 3}
       propertyPath: m_LocalPosition.z

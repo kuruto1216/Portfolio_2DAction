@@ -149,7 +149,11 @@ public class PlayerManager : MonoBehaviour
     // Arrowギミック用
     [Header("Arrow用設定")]
     [SerializeField] private float arrowControlLockTime = 0.15f;
+    [SerializeField] private float arrowJumpCutIgnoreTime = 0.3f;
+
     private float arrowControlLockTimer;
+    private float arrowJumpCutIgnoreTimer;
+    private bool isArrowBoosting;
 
     // 圧死判定用
     [Header("圧死判定設定")]
@@ -209,6 +213,7 @@ public class PlayerManager : MonoBehaviour
         UpdateJumpBuffer();         // ジャンプ入力バッファ更新
 
         UpdateDashTimers();         // ダッシュ管理(時間・空中回数)
+        UpdateArrowTimers();        // Arrowギミック関連タイマー更新
 
         UpdateState();            // Player状態更新
         UpdateByState();          // 状態に応じた更新処理
@@ -564,7 +569,7 @@ public class PlayerManager : MonoBehaviour
 
         if (rb.linearVelocity.y > 0.1f)
         {
-            if (jumpCount >= maxJumpCount)
+            if (!isArrowBoosting && jumpCount >= maxJumpCount)
             {
                 ChangeState(PlayerState.DoubleJump);
             }
@@ -575,6 +580,7 @@ public class PlayerManager : MonoBehaviour
         }
         else
         {
+            isArrowBoosting = false;
             ChangeState(PlayerState.Fall);
         }
     }
@@ -662,6 +668,7 @@ public class PlayerManager : MonoBehaviour
 
     void GroundJump()
     {
+        isArrowBoosting = false;
         jumpCount = 1;
         jumpBufferCounter = 0;
         Jump();
@@ -673,6 +680,8 @@ public class PlayerManager : MonoBehaviour
         if (!canDoubleJump) return;
         if (jumpCount >= maxJumpCount) return;
 
+        isArrowBoosting = false;
+
         jumpCount++;
         jumpBufferCounter = 0;
 
@@ -683,6 +692,8 @@ public class PlayerManager : MonoBehaviour
     void WallJump()
     {
         if (!canWallJump) return;   // 壁Jump能力解放判定
+
+        isArrowBoosting = false;
 
         jumpBufferCounter = 0;
 
@@ -1029,6 +1040,14 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    void UpdateArrowTimers()
+    {
+        if (arrowJumpCutIgnoreTimer > 0f)
+        {
+            arrowJumpCutIgnoreTimer -= Time.deltaTime;
+        }
+    }
+
     // StickyWall上昇時判定
     bool IsStickyWallMovingUp()
     {
@@ -1290,6 +1309,12 @@ public class PlayerManager : MonoBehaviour
     {
         if (!jumpReleased) return;
 
+        if (arrowJumpCutIgnoreTimer > 0f)
+        {
+            jumpReleased = false;
+            return;
+        }
+
         jumpReleased = false;
 
         if (rb.linearVelocity.y > 0f)
@@ -1466,6 +1491,8 @@ public class PlayerManager : MonoBehaviour
         if (!canControl) return;
         if (currentState == PlayerState.Dead) return;
 
+        isArrowBoosting = true;
+
         // ダッシュ中なら解除
         isDashing = false;
         dashTimer = 0f;
@@ -1477,9 +1504,12 @@ public class PlayerManager : MonoBehaviour
         rb.linearVelocity = velocity;
 
         arrowControlLockTimer = arrowControlLockTime; // 操作ロックタイマーセット
+        arrowJumpCutIgnoreTimer = arrowJumpCutIgnoreTime; // ジャンプカット無視タイマーセット
         groundIgnoreTimer = groundIgnoreTime;
 
         jumpCount = 1;       // 2段ジャンプ使用済み時、ジャンプ回数を1にリセット
         airDashUsed = false; // 空中ダッシュ回数リセット
     }
+
+    
 }

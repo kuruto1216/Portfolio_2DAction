@@ -313,6 +313,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2048
   stickyWallGraceTime: 0.05
+  arrowControlLockTime: 0.15
+  arrowJumpCutIgnoreTime: 0.5
   crushNormalThreshold: 0.6
   jumpDustPrefab: {fileID: 946370457469152496, guid: 4ce0948ae8f5eb542a3338a6c6cded9a, type: 3}
   landingDustPrefab: {fileID: 946370457469152496, guid: 31a0486d8154dae419bbbbbe40fc09da, type: 3}
@@ -449,6 +451,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: e2b32272-da18-4ad1-91bf-e04b2c944669
     m_ActionName: 'Player/Dash[/Keyboard/shift]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 67d0ee23-9974-4b77-a400-20bf3b9347f4
+    m_ActionName: 'System/Pause[/Keyboard/escape,/XInputControllerWindows/start]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

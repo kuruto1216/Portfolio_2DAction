@@ -19,6 +19,10 @@ public class ArrowBooster : MonoBehaviour
 
     private bool isActive = true;
 
+    [Header("SE")]
+    [SerializeField] private AudioClip activeSE;
+    [SerializeField, Range(0f, 1f)] private float activateSEVolume = 1f;
+
     private void Reset()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -53,6 +57,8 @@ public class ArrowBooster : MonoBehaviour
         }
 
         player.ApplyArrowBoost(launchVelocity);
+
+        AudioManager.Instance.PlaySE(activeSE, activateSEVolume);
 
         if (animator != null)
         {

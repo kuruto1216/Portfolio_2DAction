@@ -177,6 +177,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Checkpoint
   respawnPoint: {fileID: 2748584015229112436}
   animator: {fileID: 5088177337049778239}
+  gameManager: {fileID: 0}
+  isHubCheckpoint: 0
+  hubCheckpointId: 
+  checkpointSE: {fileID: 8300000, guid: 9c3bb697e562a704dadd93f061835ab9, type: 3}
+  checkpointSEVolume: 1
 --- !u!1 &8429945229142515289
 GameObject:
   m_ObjectHideFlags: 0

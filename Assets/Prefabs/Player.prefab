@@ -329,6 +329,15 @@ MonoBehaviour:
   wallJumpDustLeftPoint: {fileID: 6411152819460086905}
   wallJumpDustRightPoint: {fileID: 3322574783993971910}
   runDustInterval: 0.12
+  jumpSE: {fileID: 8300000, guid: 405f927776ac3384393d680746bce893, type: 3}
+  jumpSEVolume: 0.7
+  dashSE: {fileID: 8300000, guid: d6de53d9d91c8fe419914678c92bedcc, type: 3}
+  dashSEVolume: 0.5
+  deathSE: {fileID: 8300000, guid: 4e68308a59f8ed3438d4e251df8ef5c8, type: 3}
+  deathSEVolume: 0.2
+  landingSE: {fileID: 8300000, guid: e7928d2ad8ec82845a289be3de0bade7, type: 3}
+  landingSEVolume: 0.3
+  landingSECooldown: 0.08
   cameraLook: {fileID: 0}
 --- !u!114 &4901978664224116837
 MonoBehaviour:

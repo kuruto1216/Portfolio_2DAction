@@ -387,6 +387,7 @@ GameObject:
   - component: {fileID: 371415255}
   - component: {fileID: 371415254}
   - component: {fileID: 371415253}
+  - component: {fileID: 371415256}
   m_Layer: 0
   m_Name: GameSystems
   m_TagString: Untagged
@@ -428,6 +429,8 @@ MonoBehaviour:
   totalItemsInStage: 3
   registerAsUnlockedByDefault: 1
   nextSceneName: Hub
+  clearSE: {fileID: 8300000, guid: 996331881895417409b0cec69b853fee, type: 3}
+  clearSEVolume: 0.6
 --- !u!4 &371415255
 Transform:
   m_ObjectHideFlags: 0
@@ -443,6 +446,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &371415256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 371415252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 223844e7bf97f1b40a7af02081e8a01b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BGMPlayer
+  bgmClip: {fileID: 8300000, guid: f1566f09625989f46af0abccf8bb35da, type: 3}
+  volume: 0.18
 --- !u!1 &398465854
 GameObject:
   m_ObjectHideFlags: 0

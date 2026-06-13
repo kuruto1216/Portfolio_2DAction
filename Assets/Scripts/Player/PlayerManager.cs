@@ -183,6 +183,20 @@ public class PlayerManager : MonoBehaviour
     private GameObject currentDashDust;
     private GameObject currentWallSlideDust;
 
+    // SE用変数
+    [Header("SE")]
+    [SerializeField] private AudioClip jumpSE;
+    [SerializeField, Range(0f, 1f)] private float jumpSEVolume = 1f;
+    [SerializeField] private AudioClip dashSE;
+    [SerializeField, Range(0f, 1f)] private float dashSEVolume = 1f;
+    [SerializeField] private AudioClip deathSE;
+    [SerializeField, Range(0f, 1f)] private float deathSEVolume = 1f;
+    [SerializeField] private AudioClip landingSE;
+    [SerializeField, Range(0f, 1f)] private float landingSEVolume = 1f;
+    [SerializeField] private float landingSECooldown = 0.08f;
+
+    private float landingSECooldownTimer;
+
     // カメラ覗き込み用変数
     [Header("カメラ用設定")]
     [SerializeField] private CameraLookController cameraLook;
@@ -225,6 +239,8 @@ public class PlayerManager : MonoBehaviour
         HandleRunDust();
         HandleDashDust();
         HandleWallSlideDust();
+
+        UpdateLandingSECooldown();
     }
 
     private void FixedUpdate()
@@ -720,6 +736,8 @@ public class PlayerManager : MonoBehaviour
 
         SpawnWallJumpDust();
 
+        AudioManager.Instance.PlaySE(jumpSE, jumpSEVolume);
+
         // 完全停止壁からの壁ジャンプ時オールリセット
         currentStickyWallPlatform = null;
         isOnStickyWall = false;
@@ -736,6 +754,8 @@ public class PlayerManager : MonoBehaviour
         rb.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
 
         SpawnJumpDust();
+
+        AudioManager.Instance.PlaySE(jumpSE, jumpSEVolume);
     }
 
     // 壁張り付き処理
@@ -782,6 +802,8 @@ public class PlayerManager : MonoBehaviour
         facingLockTimer = dashDuration;
 
         rb.linearVelocity = Vector2.zero;   // 開始時に速度リセット
+
+        AudioManager.Instance.PlaySE(dashSE, dashSEVolume);
     }
 
     float GetDashDirection()
@@ -832,6 +854,12 @@ public class PlayerManager : MonoBehaviour
         if (landedThisFrame)
         {
             SpawnLandingDust();
+            
+            if (landingSECooldownTimer <= 0f)
+            {
+                AudioManager.Instance.PlaySE(landingSE, landingSEVolume);
+                landingSECooldownTimer = landingSECooldown;
+            }
         }
 
         wasGrounded = isGrounded;
@@ -1185,6 +1213,15 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    // 着地SEクールタイム管理
+    void UpdateLandingSECooldown()
+    {
+        if (landingSECooldownTimer > 0f)
+        {
+            landingSECooldownTimer -= Time.deltaTime;
+        }
+    }
+
     // ダッシュエフェクト管理
     void HandleDashDust()
     {
@@ -1375,6 +1412,8 @@ public class PlayerManager : MonoBehaviour
     void RequestDeath()
     {
         if (currentState == PlayerState.Dead) return;
+
+        AudioManager.Instance.PlaySE(deathSE, deathSEVolume);
 
         ChangeState(PlayerState.Dead);
     }

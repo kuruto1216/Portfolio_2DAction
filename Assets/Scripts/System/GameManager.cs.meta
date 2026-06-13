@@ -1,2 +1,17 @@
 fileFormatVersion: 2
 guid: 4346b37f83415254db354c4f8116128b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - gameOverText: {instanceID: 0}
+  - gameClearText: {instanceID: 0}
+  - scoreText: {instanceID: 0}
+  - player: {instanceID: 0}
+  - defaultSpawnPoint: {instanceID: 0}
+  - clearSE: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

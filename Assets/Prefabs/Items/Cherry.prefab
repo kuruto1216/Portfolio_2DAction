@@ -174,4 +174,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c74dbaec7498605438dab90427daa101, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemManager
-  gameManager: {fileID: 0}
+  itemCollider: {fileID: 0}
+  spriteRenderer: {fileID: 0}
+  animator: {fileID: 0}
+  collectSE: {fileID: 8300000, guid: 2887c88ebb2482d40a3c198c13c23687, type: 3}
+  collectSEVolume: 0.4

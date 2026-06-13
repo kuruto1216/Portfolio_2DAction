@@ -9,6 +9,10 @@ public class ItemManager : MonoBehaviour
     private bool isCollected;
     private bool isCommitted;
 
+    [Header("SE")]
+    [SerializeField] private AudioClip collectSE;
+    [SerializeField, Range(0f, 1f)] private float collectSEVolume = 1f;
+
     private void Awake()
     {
         if (itemCollider == null)
@@ -33,6 +37,8 @@ public class ItemManager : MonoBehaviour
 
         isCollected = true;
         isCommitted = false;
+
+        AudioManager.Instance.PlaySE(collectSE, collectSEVolume);
 
         if (itemCollider != null)
         {

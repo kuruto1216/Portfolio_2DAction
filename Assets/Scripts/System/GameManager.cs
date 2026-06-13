@@ -24,6 +24,10 @@ public class GameManager : MonoBehaviour
     [Header("Clear")]
     [SerializeField] private string nextSceneName = "Hub";
 
+    [Header("SE")]
+    [SerializeField] private AudioClip clearSE;
+    [SerializeField, Range(0f, 1f)] private float clearSEVolume = 1f;
+
     private int committedCollectedCount = 0;
     private int tempCollectedCount = 0;
     private bool isGameOver = false;
@@ -134,6 +138,7 @@ public class GameManager : MonoBehaviour
         }
 
         gameClearText.SetActive(true);
+        AudioManager.Instance.PlaySE(clearSE, clearSEVolume);
         Invoke(nameof(GoToNextScene), 1.5f);
     }
 

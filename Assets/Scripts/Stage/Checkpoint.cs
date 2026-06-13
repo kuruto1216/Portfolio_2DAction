@@ -12,6 +12,10 @@ public class Checkpoint : MonoBehaviour
 
     private bool activated;
 
+    [Header("SE")]
+    [SerializeField] private AudioClip checkpointSE;
+    [SerializeField, Range(0f, 1f)] private float checkpointSEVolume = 1f;
+
     public Transform RespawnPoint => respawnPoint;
     public bool IsHubCheckpoint => isHubCheckpoint;
     public string HubCheckpointId => hubCheckpointId;
@@ -80,6 +84,8 @@ public class Checkpoint : MonoBehaviour
         if (activated) return;
 
         activated = true;
+
+        AudioManager.Instance.PlaySE(checkpointSE, checkpointSEVolume);
 
         if (animator != null)
         {

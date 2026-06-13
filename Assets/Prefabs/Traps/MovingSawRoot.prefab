@@ -341,7 +341,7 @@ MonoBehaviour:
   speed: 2
   loop: 1
   animator: {fileID: 6677519007332527577}
-  animatorSpeed: 1
+  animatorSpeed: 2
 --- !u!1 &4973838001945873362
 GameObject:
   m_ObjectHideFlags: 0

@@ -171,3 +171,5 @@ MonoBehaviour:
   triggerCollider: {fileID: 1651524795660372836}
   animator: {fileID: 8049395760483132877}
   hitAnimationTime: 0.183
+  activeSE: {fileID: 8300000, guid: 783dd6ff4f49a7145b57d8929a09e7b5, type: 3}
+  activateSEVolume: 0.3

@@ -177,3 +177,5 @@ MonoBehaviour:
   itemCollider: {fileID: 0}
   spriteRenderer: {fileID: 0}
   animator: {fileID: 0}
+  collectSE: {fileID: 8300000, guid: 2887c88ebb2482d40a3c198c13c23687, type: 3}
+  collectSEVolume: 0.4

@@ -16,6 +16,10 @@ public class TitleManager : MonoBehaviour
     [Header("First Selected")]
     [SerializeField] private GameObject firstSelectedButton;
 
+    [Header("Options")]
+    [SerializeField] private GameObject titleMenuRoot;
+    [SerializeField] private OptionsManager optionsManager;
+
     private void Start()
     {
         // ContinueÉ{É^ÉìÇÃóLñ≥êÿÇËë÷Ç¶
@@ -86,6 +90,19 @@ public class TitleManager : MonoBehaviour
         }
 
         TransitionManager.Instance.LoadScene(hubSceneName);
+    }
+
+    public void OnOptions()
+    {
+        titleMenuRoot.SetActive(false);
+        optionsManager.OpenOptions();
+    }
+
+    public void OnCloseOptions()
+    {
+        optionsManager.CloseOptions();
+        titleMenuRoot.SetActive(true);
+        SelectFirstButton();
     }
 
     public void OnQuit()

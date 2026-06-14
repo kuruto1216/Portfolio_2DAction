@@ -1836,6 +1836,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73a4cd7ced009d44bad6bf8c2c5297a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TitleManager
+  newGameButton: {fileID: 1766084840}
   continueButton: {fileID: 1029124853}
   hubSceneName: Hub
   firstSelectedButton: {fileID: 1766084838}

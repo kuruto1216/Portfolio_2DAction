@@ -8,6 +8,7 @@ using UnityEngine.Rendering;
 public class TitleManager : MonoBehaviour
 {
     [Header("UI")]
+    [SerializeField] private Button newGameButton;
     [SerializeField] private Button continueButton;
 
     [Header("Scene")]
@@ -20,12 +21,16 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private GameObject titleMenuRoot;
     [SerializeField] private OptionsManager optionsManager;
 
+    private bool hasSaveData;
+
     private void Start()
     {
+        hasSaveData = SaveManager.HasSaveData();
+
         // ContinueÉ{É^ÉìÇÃóLñ≥êÿÇËë÷Ç¶
         if (continueButton != null)
         {
-            continueButton.interactable = SaveManager.HasSaveData();
+            continueButton.interactable = hasSaveData;
         }
 
         SelectFirstButton();
@@ -62,10 +67,26 @@ public class TitleManager : MonoBehaviour
     private void SelectFirstButton()
     {
         if (EventSystem.current == null) return;
-        if (firstSelectedButton == null) return;
+
+        GameObject selectedButton = null;
+
+        if (hasSaveData && continueButton != null && continueButton.interactable)
+        {
+            selectedButton = continueButton.gameObject;
+        }
+        else if (newGameButton != null)
+        {
+            selectedButton = newGameButton.gameObject;
+        }
+        else
+        {
+            selectedButton = firstSelectedButton;
+        }
+
+        if (selectedButton == null) return;
 
         EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(firstSelectedButton);
+        EventSystem.current.SetSelectedGameObject(selectedButton);
     }
 
     public void OnNewGame()

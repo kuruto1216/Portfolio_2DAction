@@ -287,6 +287,9 @@ public class ProgressManager : MonoBehaviour
         saveData.wallJumpUnlocked = abilities.canWallJump;
         saveData.doubleJumpUnlocked = abilities.canDoubleJump;
 
+        saveData.isArea2Unlocked = isArea2Unlocked;
+        saveData.isArea3Unlocked = isArea3Unlocked;
+
         saveData.stages.Clear();
 
         foreach (var stage in stageProgressList)
@@ -324,6 +327,9 @@ public class ProgressManager : MonoBehaviour
         abilities.canWallJump = saveData.wallJumpUnlocked;
         abilities.canWallSlide = saveData.wallJumpUnlocked;
         abilities.canDoubleJump = saveData.doubleJumpUnlocked;
+
+        isArea2Unlocked = saveData.isArea2Unlocked;
+        isArea3Unlocked = saveData.isArea3Unlocked;
 
         stageProgressList.Clear();
         stageProgressMap.Clear();

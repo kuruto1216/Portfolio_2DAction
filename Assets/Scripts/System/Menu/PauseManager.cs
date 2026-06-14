@@ -26,6 +26,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private OptionsManager optionsManager;
 
     private bool isPaused;
+    private bool isOptionsOpen;
 
     private void Start()
     {
@@ -62,6 +63,12 @@ public class PauseManager : MonoBehaviour
 
     public void TogglePause()
     {
+        if (isOptionsOpen)
+        {
+            CloseOptions();
+            return;
+        }
+
         if (isPaused)
         {
             Resume();
@@ -86,8 +93,12 @@ public class PauseManager : MonoBehaviour
 
     public void Resume()
     {
+        isOptionsOpen = false;
+
         isPaused = false;
         pausePanel.SetActive(false);
+        optionsManager.CloseOptions();
+
         Time.timeScale = 1f;
 
         playerInput.SwitchCurrentActionMap(playerActionMapName);
@@ -103,12 +114,16 @@ public class PauseManager : MonoBehaviour
 
     public void OpenOptions()
     {
+        isOptionsOpen = true;
+
         pausePanel.SetActive(false);
         optionsManager.OpenOptions();
     }
 
     public void CloseOptions()
     {
+        isOptionsOpen = false;
+
         optionsManager.CloseOptions();
         pausePanel.SetActive(true);
 

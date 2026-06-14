@@ -12,6 +12,9 @@ public class SaveData
     public bool wallJumpUnlocked;
     public bool doubleJumpUnlocked;
 
+    public bool isArea2Unlocked;
+    public bool isArea3Unlocked;
+
     public List<string> activatedHubCheckpointIds = new List<string>();
 
     public List<StageSaveData> stages = new List<StageSaveData>();

@@ -53,6 +53,7 @@ MonoBehaviour:
   pauseAction: {fileID: 4935708672941950170, guid: d0c12a6295ab4304788db339f2d369cf, type: 3}
   playerInput: {fileID: 0}
   playerActionMapName: Player
+  gameManager: {fileID: 0}
   optionsManager: {fileID: 0}
 --- !u!1 &1030372947944038416
 GameObject:
@@ -170,7 +171,7 @@ GameObject:
   - component: {fileID: 7721922307831445880}
   - component: {fileID: 9175710952437646746}
   m_Layer: 5
-  m_Name: RetryStageButton
+  m_Name: RestartFromCPButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -280,7 +281,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5444115919479565849}
         m_TargetAssemblyTypeName: PauseManager, Assembly-CSharp
-        m_MethodName: RetryStage
+        m_MethodName: RestartFromCheckpoint
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -488,7 +489,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u6700\u521D\u304B\u3089\u3084\u308A\u76F4\u3059"
+  m_text: "\u30C1\u30A7\u30C3\u30AF\u30DD\u30A4\u30F3\u30C8\u304B\u3089\u518D\u958B"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ae9c55c231ca41b41b1c02706c2ed796, type: 2}
   m_sharedMaterial: {fileID: 8539381561112605965, guid: ae9c55c231ca41b41b1c02706c2ed796, type: 2}
@@ -515,8 +516,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60
-  m_fontSizeBase: 60
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

@@ -13127,6 +13127,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5444115919479565849, guid: 2d2f700b0202a494ea6ef7179bd44601, type: 3}
+      propertyPath: gameManager
+      value: 
+      objectReference: {fileID: 371415254}
+    - target: {fileID: 5444115919479565849, guid: 2d2f700b0202a494ea6ef7179bd44601, type: 3}
       propertyPath: playerInput
       value: 
       objectReference: {fileID: 974569028}
@@ -66582,7 +66586,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 150, y: 1}
+  m_Size: {x: 200, y: 1}
   m_EdgeRadius: 0
 --- !u!4 &2054135678
 Transform:
@@ -66593,7 +66597,7 @@ Transform:
   m_GameObject: {fileID: 2054135676}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -10, z: 0}
+  m_LocalPosition: {x: 50, y: -10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

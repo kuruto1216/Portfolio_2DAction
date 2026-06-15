@@ -22,6 +22,9 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private PlayerInput playerInput;
     [SerializeField] private string playerActionMapName = "Player";
 
+    [Header("Game Manager")]
+    [SerializeField] private GameManager gameManager;
+
     [Header("Options")]
     [SerializeField] private OptionsManager optionsManager;
 
@@ -104,12 +107,18 @@ public class PauseManager : MonoBehaviour
         playerInput.SwitchCurrentActionMap(playerActionMapName);
     }
 
-    public void RetryStage()
+    public void RestartFromCheckpoint()
     {
         Time.timeScale = 1f;
 
-        string currentSceneName = SceneManager.GetActiveScene().name;
-        TransitionManager.Instance.LoadScene(currentSceneName);
+        isPaused = false;
+        isOptionsOpen = false;
+
+        pausePanel.SetActive(false);
+        optionsManager.CloseOptions();
+
+        playerInput.SwitchCurrentActionMap(playerActionMapName);
+        gameManager.RestartFromCheckpointByMenu();
     }
 
     public void OpenOptions()

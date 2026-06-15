@@ -142,6 +142,26 @@ public class GameManager : MonoBehaviour
         Invoke(nameof(GoToNextScene), 1.5f);
     }
 
+    public void RestartFromCheckpointByMenu()
+    {
+        if (isGameOver) return;
+
+        gameOverText.SetActive(false);
+
+        ResetTempItems();
+
+        Vector3 spawnPos = defaultSpawnPoint.position;
+
+        if (CheckpointManager.Instance != null && CheckpointManager.Instance.HasCheckpoint)
+        {
+            spawnPos = CheckpointManager.Instance.RespawnPosition;
+        }
+
+        player.RespawnTo(spawnPos);
+
+        isGameOver = false;
+    }
+
     private void Respawn()
     {
         gameOverText.SetActive(false);

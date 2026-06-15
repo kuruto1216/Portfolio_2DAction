@@ -31538,6 +31538,8 @@ MonoBehaviour:
   totalItemsInStage: 5
   registerAsUnlockedByDefault: 1
   nextSceneName: Hub
+  clearSE: {fileID: 0}
+  clearSEVolume: 1
 --- !u!4 &1639222685
 Transform:
   m_ObjectHideFlags: 0
@@ -31685,6 +31687,10 @@ PrefabInstance:
     - target: {fileID: 8649718334054737754, guid: f00e0268d7e71234f8faf4377934576e, type: 3}
       propertyPath: m_Name
       value: Arrow (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8649718334054737754, guid: f00e0268d7e71234f8faf4377934576e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -32749,6 +32755,10 @@ PrefabInstance:
     - target: {fileID: 8649718334054737754, guid: f00e0268d7e71234f8faf4377934576e, type: 3}
       propertyPath: m_Name
       value: Arrow
+      objectReference: {fileID: 0}
+    - target: {fileID: 8649718334054737754, guid: f00e0268d7e71234f8faf4377934576e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -7,6 +7,7 @@ public class StageProgressData
     public int bestCollectedCount;
     public int totalItemCount;
     public int deathCount;
+    public bool isCleared;
 
     public bool isUnlocked;     // –¢Žg—p
 

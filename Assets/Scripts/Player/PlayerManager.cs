@@ -31,11 +31,6 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] private bool canWallSlide = true;
     [SerializeField] private bool canDash = true;
 
-    // 能力解放(実装予定)
-    private void SetDashEnabled(bool enabled) => canDash = enabled;
-    private void SetWallSlideEnabled(bool enabled) => canWallSlide = enabled;
-    private void SetDoubleJumpEnabled(bool enabled) => canDoubleJump = enabled;
-
     // 移動用変数
     [Header("移動速度")]
     [SerializeField] private float speed = 5f;  // 移動速度（Inspectorから調整）
@@ -230,16 +225,18 @@ public class PlayerManager : MonoBehaviour
         UpdateArrowTimers();        // Arrowギミック関連タイマー更新
 
         UpdateState();            // Player状態更新
-        UpdateByState();          // 状態に応じた更新処理
 
-        // 見た目・アニメ更新
+        // アニメ・向き更新
         UpdateFacingLock();
         UpdateFacing();
         UpdateAnimator();
+
+        // エフェクト更新
         HandleRunDust();
         HandleDashDust();
         HandleWallSlideDust();
 
+        // SE管理
         UpdateLandingSECooldown();
     }
 
@@ -281,6 +278,7 @@ public class PlayerManager : MonoBehaviour
             ApplyWallSlide();
         }
 
+        // ジャンプ・重力
         if (!isDashing)
         {
             TryJump();              // ジャンプ入力時処理
@@ -296,6 +294,7 @@ public class PlayerManager : MonoBehaviour
             rb.linearVelocity += new Vector2(platformVelocity.x, 0f);
         }
 
+        // StickyWall追従
         if (!isGrounded &&
             isOnStickyWall &&
             currentStickyWallPlatform != null)
@@ -546,6 +545,28 @@ public class PlayerManager : MonoBehaviour
 
     // ===== 自作メソッド =====
 
+    // ---能力反映メソッド群---
+
+    // 能力反映
+    public void ApplyAbilities(PlayerAbilityData data)
+    {
+        if (data == null) return;
+
+        canJump = data.canJump;
+        canDash = data.canDash;
+        canWallSlide = data.canWallSlide;
+        canWallJump = data.canWallJump;
+        canDoubleJump = data.canDoubleJump;
+    }
+
+    // 能力反映メソッド呼び出し
+    public void RefreshAbilities()
+    {
+        if (ProgressManager.Instance == null) return;
+
+        ApplyAbilities(ProgressManager.Instance.Abilities);
+    }
+
     // ---状態管理関連メソッド---
 
     // Player状態更新
@@ -606,9 +627,7 @@ public class PlayerManager : MonoBehaviour
     {
         if (currentState == newState) return;
 
-        PlayerState previousState = currentState;   // 前の状態保存(使用しないが将来の拡張用に)
         currentState = newState;
-        //Debug.Log("State: " + currentState);
 
         switch (newState)
         {
@@ -616,48 +635,6 @@ public class PlayerManager : MonoBehaviour
                 jumpCount = 0;  // 壁を地面とみなしてジャンプ回数リセット
                 break;
         }
-    }
-
-    // 状態に応じた更新処理(空のメソッド群は将来の拡張用)
-    void UpdateByState()
-    {
-        switch (currentState)
-        {
-            case PlayerState.Idle:
-                UpdateIdle();
-                break;
-
-            case PlayerState.Run:
-                UpdateRun();
-                break;
-
-            case PlayerState.Jump:
-            case PlayerState.Fall:
-                UpdateAir();
-                break;
-
-            case PlayerState.WallSlide:
-                UpdateWallSlide();
-                break;
-
-            case PlayerState.Dead:
-
-                break;
-        }
-    }
-
-    // ---状態別更新メソッド群---
-    void UpdateIdle()
-    {
-    }
-    void UpdateRun()
-    {
-    }
-    void UpdateAir()
-    {
-    }
-    void UpdateWallSlide()
-    {
     }
 
     // ---動作メソッド群---
@@ -682,15 +659,18 @@ public class PlayerManager : MonoBehaviour
         AirJump();
     }
 
+    // 地上ジャンプ処理
     void GroundJump()
     {
         isArrowBoosting = false;
+
         jumpCount = 1;
         jumpBufferCounter = 0;
+
         Jump();
     }
 
-    // 空中ジャンプ(+2段)
+    // 空中ジャンプ処理(+2段)
     void AirJump()
     {
         if (!canDoubleJump) return;
@@ -704,7 +684,7 @@ public class PlayerManager : MonoBehaviour
         Jump();
     }
 
-    // 壁ジャンプ
+    // 壁ジャンプ処理
     void WallJump()
     {
         if (!canWallJump) return;   // 壁Jump能力解放判定
@@ -806,6 +786,7 @@ public class PlayerManager : MonoBehaviour
         AudioManager.Instance.PlaySE(dashSE, dashSEVolume);
     }
 
+    // ダッシュ方向取得
     float GetDashDirection()
     {
         if (move > 0.01f) return 1f;
@@ -1087,11 +1068,13 @@ public class PlayerManager : MonoBehaviour
 
     // ---ユーティリティメソッド群---
 
+    // LayerMask内にオブジェクトが含まれるかの判定
     static bool IsInLayerMask(GameObject obj, LayerMask mask)
     {
         return (mask.value & (1 << obj.layer)) != 0;
     }
 
+    // RockHeadかの判定
     static bool IsRockHead(Collider2D col)
     {
         return col != null && col.GetComponentInParent<RockHeadMarker>() != null;
@@ -1296,26 +1279,6 @@ public class PlayerManager : MonoBehaviour
 
     // ---特殊処理メソッド群---
 
-    // 能力反映
-    public void ApplyAbilities(PlayerAbilityData data)
-    {
-        if (data == null) return;
-
-        canJump = data.canJump;
-        canDash = data.canDash;
-        canWallSlide = data.canWallSlide;
-        canWallJump = data.canWallJump;
-        canDoubleJump = data.canDoubleJump;
-    }
-
-    // 能力反映メソッド呼び出し
-    public void RefreshAbilities()
-    {
-        if (ProgressManager.Instance == null) return;
-
-        ApplyAbilities(ProgressManager.Instance.Abilities);
-    }
-
     // 動的重力調整
     void ApplyDynamicGravity()
     {
@@ -1394,6 +1357,7 @@ public class PlayerManager : MonoBehaviour
         Physics2D.IgnoreLayerCollision(playerLayer, oneWayGroundLayer, false);
     }
 
+    // バウンド処理
     public void Bounce(float bouncePower)
     {
         if (!canControl) return;
@@ -1440,6 +1404,7 @@ public class PlayerManager : MonoBehaviour
         rb.simulated = false;               //　物理停止
     }
 
+    // 入力・一時状態リセット
     void ClearInputAndTransientStates()
     {
         // 入力系
@@ -1549,6 +1514,4 @@ public class PlayerManager : MonoBehaviour
         jumpCount = 1;       // 2段ジャンプ使用済み時、ジャンプ回数を1にリセット
         airDashUsed = false; // 空中ダッシュ回数リセット
     }
-
-    
 }

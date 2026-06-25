@@ -526,6 +526,7 @@ MonoBehaviour:
   gameOverText: {fileID: 698703320}
   gameClearText: {fileID: 1998608166}
   scoreText: {fileID: 1873737178}
+  clearTimeText: {fileID: 2111553201}
   player: {fileID: 974569026}
   defaultSpawnPoint: {fileID: 734182874}
   hubSceneName: Hub
@@ -64510,6 +64511,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c97a867e4616bb64d9891071a7e0f63a, type: 3}
+--- !u!114 &2111553201 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7032586344598283877, guid: c97a867e4616bb64d9891071a7e0f63a, type: 3}
+  m_PrefabInstance: {fileID: 2111553200}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -50,6 +50,7 @@ public class HubGameManager : MonoBehaviour
         foreach (var checkpoint in hubCheckpoints)
         {
             if (checkpoint == null) continue;
+
             if (!checkpoint.IsHubCheckpoint) continue;
             if (checkpoint.HubCheckpointId != lastHubCheckpointId) continue;
             if (checkpoint.RespawnPoint == null) continue;

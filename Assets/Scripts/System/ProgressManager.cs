@@ -401,4 +401,34 @@ public class ProgressManager : MonoBehaviour
         isArea2Unlocked = false;
         isArea3Unlocked = false;
     }
+
+    // ===== Review Mode—p =====
+
+    public void CreateReviewArea2Progress()
+    {
+        ResetProgress();
+
+        abilities.canDash = true;
+        abilities.canWallSlide = true;
+        abilities.canWallJump = true;
+
+        isArea2Unlocked = true;
+
+        ActivateHubCheckpoint("Area2");
+    }
+
+    public void CreateReviewArea3Progress()
+    {
+        ResetProgress();
+
+        abilities.canDash = true;
+        abilities.canWallSlide = true;
+        abilities.canWallJump = true;
+        abilities.canDoubleJump = true;
+
+        isArea2Unlocked = true;
+        isArea3Unlocked = true;
+
+        ActivateHubCheckpoint("Area3");
+    }
 }

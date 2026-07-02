@@ -23,6 +23,22 @@ public class TitleManager : MonoBehaviour
 
     private bool hasSaveData;
 
+    [Header("Review Mode")]
+    [SerializeField] private GameObject reviewModeRoot;
+    [SerializeField] private Button area2StartButton;
+
+    private readonly Key[] reviewCommand =
+    {
+        Key.R,
+        Key.E,
+        Key.V,
+        Key.I,
+        Key.E,
+        Key.W
+    };
+
+    private int reviewCommandIndex;
+
     private void Start()
     {
         hasSaveData = SaveManager.HasSaveData();
@@ -31,6 +47,11 @@ public class TitleManager : MonoBehaviour
         if (continueButton != null)
         {
             continueButton.interactable = hasSaveData;
+        }
+
+        if (reviewModeRoot != null)
+        {
+            reviewModeRoot.SetActive(false);
         }
 
         SelectFirstButton();
@@ -62,6 +83,8 @@ public class TitleManager : MonoBehaviour
                 SelectFirstButton();
             }
         }
+
+        CheckReviewCommand();
     }
 
     private void SelectFirstButton()
@@ -129,5 +152,54 @@ public class TitleManager : MonoBehaviour
     public void OnQuit()
     {
         Application.Quit();
+    }
+
+    private void CheckReviewCommand()
+    {
+        if (Keyboard.current == null) return;
+
+        if (Keyboard.current[reviewCommand[reviewCommandIndex]].wasPressedThisFrame)
+        {
+            reviewCommandIndex++;
+
+            if (reviewCommandIndex >= reviewCommand.Length)
+            {
+                OpenReviewMode();
+                reviewCommandIndex = 0;
+            }
+        }
+        else if (Keyboard.current.anyKey.wasPressedThisFrame)
+        {
+            reviewCommandIndex = 0;
+        }
+    }
+
+    private void OpenReviewMode()
+    {
+        if (reviewModeRoot == null) return;
+
+        reviewModeRoot.SetActive(true);
+
+        if (area2StartButton != null && EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(area2StartButton.gameObject);
+        }
+    }
+
+    public void OnReviewArea2Start()
+    {
+        ProgressManager.Instance.CreateReviewArea2Progress();
+        ProgressManager.Instance.SaveGame();
+
+        TransitionManager.Instance.LoadScene(hubSceneName);
+    }
+
+    public void OnReviewArea3Start()
+    {
+        ProgressManager.Instance.CreateReviewArea3Progress();
+        ProgressManager.Instance.SaveGame();
+
+        TransitionManager.Instance.LoadScene(hubSceneName);
     }
 }

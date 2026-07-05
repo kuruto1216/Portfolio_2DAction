@@ -570,7 +570,7 @@ public class PlayerManager : MonoBehaviour
     // ---状態管理関連メソッド---
 
     // Player状態更新
-    void UpdateState()
+    private void UpdateState()
     {
         if (currentState == PlayerState.Dead)
         {
@@ -623,7 +623,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 状態変更時処理
-    void ChangeState(PlayerState newState)
+    private void ChangeState(PlayerState newState)
     {
         if (currentState == newState) return;
 
@@ -640,7 +640,7 @@ public class PlayerManager : MonoBehaviour
     // ---動作メソッド群---
 
     // ジャンプ試行
-    void TryJump()
+    private void TryJump()
     {
         if (jumpBufferCounter <= 0f) return;
 
@@ -660,7 +660,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 地上ジャンプ処理
-    void GroundJump()
+    private void GroundJump()
     {
         isArrowBoosting = false;
 
@@ -671,7 +671,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 空中ジャンプ処理(+2段)
-    void AirJump()
+    private void AirJump()
     {
         if (!canDoubleJump) return;
         if (jumpCount >= maxJumpCount) return;
@@ -685,7 +685,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 壁ジャンプ処理
-    void WallJump()
+    private void WallJump()
     {
         if (!canWallJump) return;   // 壁Jump能力解放判定
 
@@ -726,7 +726,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // ジャンプ処理本体
-    void Jump()
+    private void Jump()
     {
         groundIgnoreTimer = groundIgnoreTime;   // 地面判定無視時間セット
 
@@ -739,7 +739,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 壁張り付き処理
-    void ApplyWallSlide()
+    private void ApplyWallSlide()
     {
         if (!isOnWall) return;
         if (isGrounded) return;
@@ -760,7 +760,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // ジャンプ入力バッファ更新
-    void UpdateJumpBuffer()
+    private void UpdateJumpBuffer()
     {
         if (jumpBufferCounter > 0)
         {
@@ -769,7 +769,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // ダッシュ開始処理
-    void StartDash()
+    private void StartDash()
     {
         isDashing = true;
         dashTimer = dashDuration;
@@ -787,7 +787,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // ダッシュ方向取得
-    float GetDashDirection()
+    private float GetDashDirection()
     {
         if (move > 0.01f) return 1f;
         if (move < -0.01f) return -1f;
@@ -797,7 +797,7 @@ public class PlayerManager : MonoBehaviour
     // ---判定更新メソッド群---
 
     // 地面状態更新
-    void UpdateGroundState()
+    private void UpdateGroundState()
     {
         bool rawGrounded = IsGrounded();
 
@@ -847,7 +847,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 地面判定
-    bool IsGrounded()
+    private bool IsGrounded()
     {
         LayerMask groundMask;
 
@@ -872,7 +872,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // OnyWay床判定
-    bool IsOneWay()
+    private bool IsOneWay()
     {
         Vector3 leftStartPoint = transform.position - Vector3.right * 0.3f;
         Vector3 rightStartPoint = transform.position + Vector3.right * 0.3f;
@@ -883,7 +883,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 壁状態更新
-    void UpdateWallState()
+    private void UpdateWallState()
     {
         if (isGrounded)
         {
@@ -944,7 +944,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 左壁判定
-    bool CheckLeftWall()
+    private bool CheckLeftWall()
     {
         Vector3 upper = transform.position + Vector3.up * 1.0f;
         Vector3 lower = transform.position + Vector3.up * 0.4f;
@@ -960,7 +960,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 右壁判定
-    bool CheckRightWall()
+    private bool CheckRightWall()
     {
         Vector3 upper = transform.position + Vector3.up * 1.0f;
         Vector3 lower = transform.position + Vector3.up * 0.4f;
@@ -976,7 +976,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 左壁判定(完全停止壁)
-    bool CheckLeftStickyWall(out IPlatformDelta platform)
+    private bool CheckLeftStickyWall(out IPlatformDelta platform)
     {
         platform = null;
 
@@ -1000,7 +1000,7 @@ public class PlayerManager : MonoBehaviour
         return false;
     }
     // 右壁判定(完全停止壁)
-    bool CheckRightStickyWall(out IPlatformDelta platform)
+    private bool CheckRightStickyWall(out IPlatformDelta platform)
     {
         platform = null;
 
@@ -1025,7 +1025,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // ダッシュ管理
-    void UpdateDashTimers()
+    private void UpdateDashTimers()
     {
         // クールタイム
         if (dashCooldownTimer > 0f)
@@ -1049,7 +1049,7 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    void UpdateArrowTimers()
+    private void UpdateArrowTimers()
     {
         if (arrowJumpCutIgnoreTimer > 0f)
         {
@@ -1058,7 +1058,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // StickyWall上昇時判定
-    bool IsStickyWallMovingUp()
+    private bool IsStickyWallMovingUp()
     {
         if (currentStickyWallPlatform == null) return false;
 
@@ -1069,13 +1069,13 @@ public class PlayerManager : MonoBehaviour
     // ---ユーティリティメソッド群---
 
     // LayerMask内にオブジェクトが含まれるかの判定
-    static bool IsInLayerMask(GameObject obj, LayerMask mask)
+    private static bool IsInLayerMask(GameObject obj, LayerMask mask)
     {
         return (mask.value & (1 << obj.layer)) != 0;
     }
 
     // RockHeadかの判定
-    static bool IsRockHead(Collider2D col)
+    private static bool IsRockHead(Collider2D col)
     {
         return col != null && col.GetComponentInParent<RockHeadMarker>() != null;
     }
@@ -1083,13 +1083,13 @@ public class PlayerManager : MonoBehaviour
     // ---見た目・アニメ関連メソッド群---
 
     // アニメーションアップデート
-    void UpdateAnimator()
+    private void UpdateAnimator()
     {
         animator.SetInteger("State", (int)currentState);
     }
 
     // moveの入力値に応じてPlayerの向き切り替え
-    void UpdateFacing()
+    private void UpdateFacing()
     {
         if (isFacingLocked) return;
 
@@ -1106,7 +1106,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 向きロックタイマー更新
-    void UpdateFacingLock()
+    private void UpdateFacingLock()
     {
         if (!isFacingLocked) return;
 
@@ -1118,7 +1118,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // Playerの向き反転
-    void Flip()
+    private void Flip()
     {
         isFacingRight = !isFacingRight;
         Vector3 scale = visual.localScale;
@@ -1127,7 +1127,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 壁との逆方向入力判定
-    bool IsPressingAwayFromStickyWall()
+    private bool IsPressingAwayFromStickyWall()
     {
         if (isOnLeftStickyWall && move > 0.01f) return true;
         if (isOnRightStickyWall && move < -0.01f) return true;
@@ -1137,7 +1137,7 @@ public class PlayerManager : MonoBehaviour
     // ---エフェクト関連メソッド群---
 
     // ジャンプエフェクト生成
-    void SpawnJumpDust()
+    private void SpawnJumpDust()
     {
         if (jumpDustPrefab == null || dustSpawnPoint == null) return;
 
@@ -1145,7 +1145,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 着地エフェクト生成
-    void SpawnLandingDust()
+    private void SpawnLandingDust()
     {
         if (landingDustPrefab == null || dustSpawnPoint == null) return;
 
@@ -1153,7 +1153,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 走行エフェクト生成
-    void SpawnRunDust()
+    private void SpawnRunDust()
     {
         if (runDustPrefab == null || dustSpawnPoint == null) return;
 
@@ -1161,7 +1161,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 壁ジャンプエフェクト生成
-    void SpawnWallJumpDust()
+    private void SpawnWallJumpDust()
     {
         if (wallJumpDustPrefab == null) return;
 
@@ -1173,7 +1173,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 走行エフェクト管理
-    void HandleRunDust()
+    private void HandleRunDust()
     {
         bool shouldSpawnRunDust =
             isGrounded &&
@@ -1197,7 +1197,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 着地SEクールタイム管理
-    void UpdateLandingSECooldown()
+    private void UpdateLandingSECooldown()
     {
         if (landingSECooldownTimer > 0f)
         {
@@ -1206,7 +1206,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // ダッシュエフェクト管理
-    void HandleDashDust()
+    private void HandleDashDust()
     {
         if (isDashing)
         {
@@ -1235,7 +1235,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 壁滑りエフェクト生成及び管理
-    void HandleWallSlideDust()
+    private void HandleWallSlideDust()
     {
         bool shouldWallSlideDust =
         currentState == PlayerState.WallSlide &&
@@ -1280,7 +1280,7 @@ public class PlayerManager : MonoBehaviour
     // ---特殊処理メソッド群---
 
     // 動的重力調整
-    void ApplyDynamicGravity()
+    private void ApplyDynamicGravity()
     {
         if (isGrounded)
         {
@@ -1305,7 +1305,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 可変ジャンプ調整
-    void ApplyJumpCut()
+    private void ApplyJumpCut()
     {
         if (!jumpReleased) return;
 
@@ -1327,7 +1327,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 横ずれ防止処理
-    void ApplyGroundStick()
+    private void ApplyGroundStick()
     {
         if (!isGrounded) return;
         if (isDashing) return;
@@ -1339,7 +1339,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // すり抜け処理
-    void DropThroughOneWay()
+    private void DropThroughOneWay()
     {
         CancelInvoke(nameof(EnableOneWayCollision));    // 多重発火対策
 
@@ -1352,7 +1352,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 衝突解除
-    void EnableOneWayCollision()
+    private void EnableOneWayCollision()
     {
         Physics2D.IgnoreLayerCollision(playerLayer, oneWayGroundLayer, false);
     }
@@ -1373,7 +1373,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 死亡状態リクエスト
-    void RequestDeath()
+    private void RequestDeath()
     {
         if (currentState == PlayerState.Dead) return;
 
@@ -1392,7 +1392,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // プレイヤー機能停止
-    void DisablePlayerControl()
+    private void DisablePlayerControl()
     {
         canControl = false;                 //　ロジック停止
         move = 0f;                          //　入力停止
@@ -1405,7 +1405,7 @@ public class PlayerManager : MonoBehaviour
     }
 
     // 入力・一時状態リセット
-    void ClearInputAndTransientStates()
+    private void ClearInputAndTransientStates()
     {
         // 入力系
         lookInput = Vector2.zero;

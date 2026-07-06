@@ -55,13 +55,13 @@
 
 ## 主なスクリプト
 
-| Script | 役割 | リンク |
-| --- | --- | --- |
-| PlayerManager | プレイヤー操作全体 | [Assets/Scripts/Player/PlayerManager](リンク) |
-| GameManager | ステージ進行管理 |
-| ProgressManager | ゲーム進行状況管理 |
-| SaveManager | JSONセーブ・ロード |
-| AudioManager | BGM・SE管理 |
+| Script | 役割 |
+| --- | --- |
+| [PlayerManager.cs](https://github.com/kuruto1216/Portfolio_2DAction/blob/main/Assets/Scripts/Player/PlayerManager.cs) | プレイヤー操作全体 |
+| [GameManager.cs](https://github.com/kuruto1216/Portfolio_2DAction/blob/main/Assets/Scripts/System/GameManager.cs) | ステージ進行管理 |
+| [ProgressManager.cs](https://github.com/kuruto1216/Portfolio_2DAction/blob/main/Assets/Scripts/System/ProgressManager.cs) | ゲーム進行状況管理 |
+| [SaveManager.cs](https://github.com/kuruto1216/Portfolio_2DAction/blob/main/Assets/Scripts/Data/SaveData.cs) | JSONセーブ・ロード |
+| [AudioManager.cs](https://github.com/kuruto1216/Portfolio_2DAction/blob/main/Assets/Scripts/Audio/AudioManager.cs) | BGM・SE管理 |
 
 ## ライセンス
 

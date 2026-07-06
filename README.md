@@ -1,11 +1,20 @@
 # LeapBeyond
 
 ## 概要
+
 2Dアクションゲーム「Leap Beyond」のUnityプロジェクトです。
 
 本作品は、ゲームプログラマー就職活動用のポートフォリオとして制作しました。
 
 *軽快な操作感*と、段階的に*プレイヤーのアクションが増えていく*ゲームデザインを意識しています。
+
+| 項目 | 内容 |
+| --- | --- |
+| Engine | Unity 6000.3.8f1 |
+| Language | C# |
+| Platform | WebGL |
+| Genre | 2D Action |
+| Play Time | 約1時間 |
 
 ## スクリーンショット
 
@@ -35,6 +44,14 @@
 - Animator
 - WebGL
 
+## 主な実装
+
+- Dash / Wall Jump / Double Jump
+- Checkpoint & Auto Save
+- JSON Save System
+- Review Mode
+
+
 ## 主なスクリプト
 
 | Script | 役割 |
@@ -44,3 +61,7 @@
 | ProgressManager | ゲーム進行状況管理 |
 | SaveManager | JSONセーブ・ロード |
 | AudioManager | BGM・SE管理 |
+
+## ライセンス
+
+ライセンスの都合上、一部の音声・画像アセットは本リポジトリには含まれていません。

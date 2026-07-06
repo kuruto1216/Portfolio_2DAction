@@ -55,9 +55,9 @@
 
 ## 主なスクリプト
 
-| Script | 役割 |
-| --- | --- |
-| PlayerManager | プレイヤー操作全体 |
+| Script | 役割 | リンク |
+| --- | --- | --- |
+| PlayerManager | プレイヤー操作全体 | [Assets/Scripts/Player/PlayerManager](リンク) |
 | GameManager | ステージ進行管理 |
 | ProgressManager | ゲーム進行状況管理 |
 | SaveManager | JSONセーブ・ロード |

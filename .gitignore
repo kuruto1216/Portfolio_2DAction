@@ -76,3 +76,10 @@ crashlytics-build.properties
 
 # TextMeshPro Font Assets
 * SDF.asset
+
+# Audio
+Assets/Audio
+
+# Asset store
+Assets/Pixel Adventure 1
+Assets/Tiles
